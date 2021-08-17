@@ -1,0 +1,176 @@
+<div data-ng-controller="dashboardController"
+	data-ng-init="fetchInitData()" id="dashboardController">
+
+
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>
+			Dashboard <small>Control panel</small>
+		</h1>
+		<ol class="breadcrumb">
+			<li class="active">Dashboard</li>
+		</ol>
+	</section>
+
+	<!-- Main content -->
+	<section class="content">
+		<!-- Small boxes (Stat box) -->
+
+		<div class="row">
+			<div class="col-xs-12">
+				<!-- PRODUCT LIST -->
+				<div class="box box-primary box-solid">
+					<div class="box-header with-border">
+						<h3 class="box-title">Recent Requested Products (Out Of
+							Stock)</h3>
+					</div>
+					<div class="overlay" data-ng-if="loadingOutOfStockItems">
+						<i class="fa fa-refresh fa-spin"></i>
+					</div>
+					<!-- /.box-header -->
+					<div class="box-body table-responsive">
+						<table id="itemsTbl" class="table table-bordered table-striped"
+							data-ng-model="listOfItems" datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-xs-2">Request #</th>
+									<th class="col-xs-2">Date</th>
+									<th class="col-xs-3">Item</th>
+									<!-- <th class="col-xs-2">Qty.</th> -->
+									<th class="col-xs-2">Warehouse</th>
+									<th class="col-xs-1"><input type="checkbox"
+										data-ng-model="selectAll"
+										data-ng-change="selectAllEvent(selectAll)"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="item in listOfItems track by $index">
+
+									<td>{{item.voucherRef}}</td>
+									<td>{{item.date | date : "dd/MM/yyyy"}}</td>
+									<td>Code: {{ item.itemCode }}<br /> Description:
+										{{item.itemDescription }}<br />
+									</td>
+									<!-- <td>{{item.quantity}}</td> -->
+									<td>{{item.warehouse}}</td>
+
+									<td><input type="checkbox"
+										data-ng-model="item.toUpdateStatus"
+										data-ng-change="itemSelectEvent()"></td>
+								</tr>
+						</table>
+					</div>
+					<!-- /.box-body -->
+					<div class="box-footer text-center">
+						<button type="submit" id="submit" class="btn btn-success"
+							data-ng-click="autoCreatePO()"
+							data-ng-disabled="addToPO.length == 0">Create Purchase
+							Order!</button>
+					</div>
+					<!-- /.box-footer -->
+				</div>
+				<!-- /.box -->
+			</div>
+		</div>
+
+		<div class="row">
+			<!-- ./col -->
+			<div class="col-lg-6 col-xs-12">
+			<div class="box box-danger box-solid">
+					<div class="box-header with-border">
+						<h3 class="box-title">Return Expected Kits</h3>
+					</div>
+					<div class="overlay" data-ng-if="false">
+						<i class="fa fa-refresh fa-spin"></i>
+					</div>
+					<!-- /.box-header -->
+					<div class="box-body table-responsive">
+						<table id="returnExpectedTbl"
+							class="table table-bordered table-striped"
+							data-ng-model="returnExpectedKits" datatable="ng"
+							dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-xs-1">Kit Number</th>
+									<th class="col-xs-2">Date</th>
+									<th class="col-xs-1">Request Warehouse</th>
+									<th class="col-xs-2">Assigned Warehouse</th>
+									<th class="col-xs-2">Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="item in returnExpectedKits track by $index">
+									<td><button class="btn" data-ng-click="viewDetails(item.kitNumber)">{{item.kitNumber}}</button></td>
+									<td>{{item.date | date : "dd/MM/yyyy"}}</td>
+									<td>{{item.requestWarehouse.name}}</td>
+									<td>{{item.assignedWarehouse.name}}</td>
+									<td>{{kitStatuses[item.status.toString()]}}</td>
+								</tr>
+						</table>
+					</div>
+					<!-- /.box-footer -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- ./col -->
+			<div class="col-lg-6 col-xs-12">
+
+				<div class="box box-danger box-solid">
+					<div class="box-header with-border">
+						<h3 class="box-title">Items below reorder point</h3>
+					</div>
+					<div class="overlay" data-ng-if="loadingReorderItems">
+						<i class="fa fa-refresh fa-spin"></i>
+					</div>
+					<!-- /.box-header -->
+					<div class="box-body table-responsive">
+						<table id="reorderItemsTbl"
+							class="table table-bordered table-striped"
+							data-ng-model="listOfReorderItems" datatable="ng"
+							dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-xs-1">Code</th>
+									<th class="col-xs-2">Category</th>
+									<th class="col-xs-1">Brand</th>
+									<th class="col-xs-2">Warehouse</th>
+									<!-- <th class="col-xs-2">Qty In Hand</th> -->
+									<th class="col-xs-2">Reorder Pt</th>
+									<th class="col-xs-1"><input type="checkbox"
+										data-ng-model="selectAllReorderItems"
+										data-ng-change="selectAllReorderItemsEvent(selectAllReorderItems)"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="item in listOfReorderItems track by $index">
+
+									<td>{{item.itemCode}}</td>
+									<td>{{item.category}}</td>
+									<td>{{item.brand}}</td>
+									<td>{{item.warehouse}}</td>
+									<!-- <td>{{item.quantityInHand}}</td> -->
+									<td>{{item.reorderPoint}}</td>
+									<td><input type="checkbox"
+										data-ng-model="item.toUpdateStatus"
+										data-ng-change="reorderItemSelectEvent()"></td>
+								</tr>
+						</table>
+					</div>
+					<!-- /.box-body -->
+					<div class="box-footer text-center">
+						<button type="submit" id="submit" class="btn btn-danger"
+							data-ng-click="autoCreateReorderPO()"
+							data-ng-disabled="addToReorderPO.length == 0">Create
+							Purchase Order!</button>
+					</div>
+					<!-- /.box-footer -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- ./col -->
+		</div>
+	</section>
+</div>
+
+
+

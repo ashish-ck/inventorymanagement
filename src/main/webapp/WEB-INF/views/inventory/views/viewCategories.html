@@ -1,0 +1,105 @@
+<div data-ng-controller="categoriesController"
+	data-ng-init="fetchAllCategories()" id="categoriesController">
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i> Inventory Categories
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li class="active">Categories</li>
+		</ol>
+	</section>
+
+	<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-6" style="margin-top: -1em;">
+				<h3>View Categories</h3>
+			</div>
+			<div class="col-xs-6">
+				<!-- Single button -->
+				<div class="btn-group pull-right">
+					<button type="button" class="btn btn-primary dropdown-toggle"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href=""
+							data-ng-click="openCreateCategoryModal()">Create
+								Category</a></li>
+						<li><a href="" data-ng-click="appRouting('categories')">View
+								All Categories</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /.col -->
+		</div>
+
+		<div class="row">
+			<div class="col-md-4">
+				<div class="box box-primary tree"
+					style="height: 100%; overflow: auto;">
+					<div class="box-header">
+						<h3 class="box-title">List Of All Categories</h3>
+					</div>
+					<div class="box-body">
+						<tree src="finalCategories"></tree>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-8">
+				<div class="box box-primary">
+					<div class="box-header" data-ng-show="selectedCategory.id != 0">
+						<h3 class="box-title">List Of Items under category : {{selectedCategory.name}} <a href="" data-ng-click="editCategory()">Edit</a></h3>
+					</div>
+					<div class="box-header" data-ng-show="selectedCategory.id == 0">
+						<h3 class="box-title">Please select a category to list the items</h3>
+					</div>					
+					<!-- /.box-header -->
+					<div class="box-body table-responsive">
+						<table id="itemsTbl" class="table table-bordered table-striped"
+							data-ng-model="listOfItems" datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-md-2">Item Code</th>
+									<th class="col-md-4">Description</th>
+									<th class="col-md-2">Qty.</th>
+									<th class="col-md-2">Price</th>
+									<th class="col-md-2"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="item in listOfItems track by $index">
+									<td>{{ item.code }}</td>
+									<td>{{ item.description }}</td>
+									<td>{{ item.availableQuantity }} {{ item.unitOfMeasurement }}</td>
+									<td><i class="fa fa-inr"></i> {{ item.normalPrice }}</td>
+									<td><a href="" data-ng-click="appRouting(getPath(item.id))"> View Details </a></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+		</div>
+	</section>
+	<div data-ng-include="'/resources/app/inventory/views/addUpdateCategory.html'"></div>
+</div>
+
+
+
+
+
+<div class="clearfix"></div>
+<script type="text/javascript">
+	function callMe(element) {
+		angular.element(document.getElementById('categoriesController'))
+				.scope().treeClickEvent($(element).attr('id'));
+	}
+	$(document).ready(function() {
+		$("#itemsTbl").DataTable();
+	});
+</script>

@@ -1,0 +1,77 @@
+<div data-ng-controller="stockAdjustmentsController"
+	data-ng-init="fetchAllOrders()" id="stockAdjustmentsController">
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i> Stock Adjustments
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li class="active">Stock Adjustments</li>
+		</ol>
+	</section>
+
+	<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-12">
+				<!-- Single button -->
+				<div class="btn-group pull-right">
+					<button type="button" class="btn btn-primary dropdown-toggle"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="" data-ng-click="appRouting('categories')">Initiate Stock Adjustment</a></li>
+						<li><a href="" data-ng-click="appRouting('inventory/adjustments/view')">View All Adjustments</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /.col -->
+		</div>
+
+		<div class="row">
+			<div class="col-xs-12">
+					
+					<div class="box-body table-responsive">
+						<table id="ordersTbl" class="table table-bordered table-striped"
+							style="width: 100%;" datatable=""
+							dt-options="adjustmentTblOptions"
+							dt-columns="adjustmentColumns"></table>
+						<!-- <table id="ordersTbl" class="table table-bordered table-striped"
+							data-ng-model="listOfAdjustments" datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-md-1">Order#</th>
+									<th class="col-md-1">Date (yyyy-mm-dd)</th>
+									<th class="col-md-3">Warehouse</th>
+									<th class="col-md-2"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="order in listOfAdjustments track by $index">
+									<td class="col-md-1">{{ order.orderNumber }}</td>
+									<td class="col-md-2">{{ order.orderDate  | date: 'yyyy-MM-dd' }}</td>
+									<td class="col-md-2">{{ order.warehouse.name }}</td>
+									<td class="col-md-2"><a href="" data-ng-click="appRouting(getPath(order.orderNumber))"> View Details </a></td>
+								</tr>
+						</table> -->
+					</div>
+					<!-- /.box-body -->
+			</div>
+		</div>
+	</section>
+</div>
+
+
+
+
+
+<div class="clearfix"></div>
+<script type="text/javascript">
+
+var viewDetails = function (orderNo) {
+    angular.element('#stockAdjustmentsController').scope().viewDetails(orderNo);
+}
+
+</script>

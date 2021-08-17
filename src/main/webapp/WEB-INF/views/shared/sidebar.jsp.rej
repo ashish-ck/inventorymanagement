@@ -1,0 +1,9 @@
+diff a/src/main/webapp/WEB-INF/views/shared/sidebar.jsp b/src/main/webapp/WEB-INF/views/shared/sidebar.jsp	(rejected hunks)
+@@ -174,7 +174,6 @@
+ 			<c:if test="${fn:contains(permissions, '/inventory/recommendations/items/fast') || fn:contains(permissions, 'all')}">
+ 				<li class="treeview"><a href=""
+ 					data-ng-click="appRouting('/inventory/recommendations/items/fast')"> <i
+-						class="fa fa-shopping-basket"></i> <span>Fast moving</span>
+ 						class="fa fa-shopping-basket"></i> <span>Recommendations</span>
+ 				</a></li>
+ 			</c:if>

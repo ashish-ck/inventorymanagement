@@ -1,0 +1,173 @@
+<div data-ng-controller="searchItemsController"
+	data-ng-init="fetchInitData()">
+
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i> Inventory Items
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li><a class="active">Search</a></li>
+		</ol>
+	</section>
+
+	<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-6" style="margin-top: -1em;">
+				<h3>Search Items</h3>
+			</div>
+			<div class="col-xs-6">
+				<!-- Single button -->
+				<div class="btn-group pull-right">
+					<button type="button" class="btn btn-primary dropdown-toggle"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="" data-ng-click="appRouting('items/create')">Create
+								Item</a></li>
+						<li><a href="" data-ng-click="appRouting('items/import')">Import</a></li>
+						<li><a href="" data-ng-click="appRouting('items')">View
+								All Items</a></li>
+						<li><a href="" data-ng-click="appRouting('items/search')">Search
+								Items</a></li>
+
+					</ul>
+				</div>
+			</div>
+			<!-- /.col -->
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box box-primary">
+					<!-- /.box-header -->
+					<div class="box-body">
+						<form role="form">
+							<div class="box-body">
+								<div class="row">
+
+
+									<div class="col-xs-3">
+										<label for="name">Search By</label>
+										<ui-select ng-model="$parent.searchCriteria"
+											data-ng-change="firstLevelCriteriaChange()"> <ui-select-match
+											placeholder="Select Search Criteria..."> <span
+											ng-bind="$select.selected"></span> </ui-select-match> <ui-select-choices
+											repeat="criteria as criteria in (listOfCriterias | filter: $select.search) track by criteria">
+										<span ng-bind="criteria"></span> </ui-select-choices> </ui-select>
+									</div>
+
+									<div class="col-xs-3" data-ng-show="showAttributeSelectInput">
+										<label for="name">Select Attribute</label>
+										<ui-select ng-model="$parent.selectedAttribute" data-ng-show="showAttributeSelectInput"
+											data-ng-change="fetchAttributeValues()"> <ui-select-match
+											placeholder="Select Search Criteria..."> <span
+											ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+											repeat="attribute as attribute in (listOfAttributes | filter: $select.search) track by attribute.id">
+										<span ng-bind="attribute.name"></span> </ui-select-choices> </ui-select>
+									</div>
+
+
+									<div class="col-xs-3" data-ng-show="showSearchValueInput">
+										<label for="name">{{ currentSearchCriteriaText }}</label>
+
+										<div data-ng-show="showTextInput">
+											<input type="text" class="form-control"
+												data-ng-model="searchTextParam"
+												placeholder="Enter search parameter.."
+												data-ng-disabled="!searchCriteria">
+										</div>
+
+										<div data-ng-show="showValueSelectInput">
+											<ui-select multiple sortable="true" close-on-select="false"
+												data-ng-model="$parent.searchValues" theme="bootstrap">
+											<ui-select-match placeholder="Select values...">{{$item.name}}</ui-select-match>
+											<ui-select-choices
+												repeat="item.name as item in (listOfValueItems | propsFilter: {name: $select.search})">
+											{{item.name}} </ui-select-choices> </ui-select>
+										</div>
+
+										<div data-ng-show="showAttributeValueSelectInput">
+
+											<ui-select multiple data-ng-disabled="!selectedAttribute"
+												sortable="true" close-on-select="false"
+												data-ng-model="$parent.attributeValues" theme="bootstrap">
+											<ui-select-match placeholder="Select attribute values...">{{$item}}</ui-select-match>
+											<ui-select-choices
+												repeat="value as value in listOfAttributeValues | filter: $select.search">
+											{{value}} </ui-select-choices> </ui-select>
+										
+										</div>
+
+									</div>
+									<div class="col-xs-3" style="margin-top: 1.6em;">
+										<button type="button" class="btn btn-primary"
+											data-ng-click="addCriteria()">Add Criteria</button>
+									</div>
+								</div>
+							</div>
+							<!-- /.box-body -->
+						</form>
+					</div>
+					<div class="box-header" data-ng-show="criteriaText.length > 0">
+						<h6 class="box-title">
+							<button type="button" class="btn btn-success"
+								data-ng-click="searchByCriteria()">Search Items</button>
+							{{criteriaText}}
+						</h6>
+						<div class="box-tools"></div>
+					</div>
+					
+					<div class="box-body" data-ng-show="showNoItemsFoundError">
+						<div class="alert alert-warning alert-dismissable">
+							<h4>
+								<i class="icon fa fa-warning"></i> Oops,
+							</h4>
+								No Items found match your criterias
+						</div>
+					</div>
+
+					<div class="box-body table-responsive"
+						data-ng-show="listOfItems.length > 0">
+						<table id="itemsTbl" class="table table-bordered table-striped"
+							data-ng-model="listOfItems" datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th>Item Code</th>
+									<th>Category</th>
+									<th>Quantity In Hand</th>
+									<th>Price</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="item in listOfItems track by $index">
+									<td>{{ item.code }}</td>
+									<td>{{ item.category.name }}</td>
+									<td>{{ item.quantityInHand }} {{ item.unitOfMeasurement }}
+									</td>
+									<td><i class="fa fa-inr"></i> {{ item.normalPrice }}</td>
+									<td><a href="" data-ng-click="appRouting(getPath(item.id))"> View Details </a></td>
+								</tr>
+						</table>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- /.col -->
+		</div>
+		<!-- /.row -->
+
+
+
+	</section>
+</div>
+<div class="clearfix"></div>
+<script>
+	$(document).ready(function() {
+		$("#itemsTbl").DataTable();
+	});
+</script>

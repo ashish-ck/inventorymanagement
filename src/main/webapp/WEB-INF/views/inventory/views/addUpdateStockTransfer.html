@@ -1,0 +1,810 @@
+<div data-ng-controller="createStockTransfersController"
+	data-ng-init="fetchInitData()">
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i> Stock Transfer
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li><a class="active">Stock Transfers</a></li>
+		</ol>
+	</section>
+	<section class="invoice">
+		<div class="row">
+			<div class="nav-tabs-custom">
+				<ul class="nav nav-tabs">
+					<li class="active"><a showtab="" href="#orderTab"
+						data-toggle="tab">Transfer Order Details</a></li>
+					<li data-ng-show="isUpdateForm"><a showtab="" href="#sendTab"
+						data-toggle="tab">Send</a></li>
+					<li data-ng-show="itemsSent && isUpdateForm"><a showtab=""
+						href="#receiveTab" data-toggle="tab">Receive</a></li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane active" id="orderTab">
+						<form name="orderForm" class="form-horizontal"
+							data-ng-submit="saveOrder(orderForm.$valid)" novalidate>
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h2 class="box-title">From Warehouse</h2>
+										</div>
+										<!-- /.box-header -->
+
+										<div class="box-body">
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : orderForm.fromWarehouse.$invalid && orderForm.fromWarehouse.$touched }">
+												<label for="shippingLocation" class="col-sm-2 control-label">Pick
+													From</label>
+												<div class="col-sm-10">
+													<ui-select ng-model="transferOrder.fromWarehouse"
+														data-ng-required="true" data-ng-disabled="itemsSent"
+														name="fromWarehouse"
+														data-ng-change="warehouseSelectEvent()"> <ui-select-match
+														placeholder="Select Warehouse..."> <span
+														ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+														repeat="warehouse as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+													<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+													<p
+														data-ng-show="orderForm.fromWarehouse.$invalid && orderForm.fromWarehouse.$touched"
+														class="help-block">From where to ship items?</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="shippingAddress" class="col-sm-2 control-label">Pick
+													Up Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3" id="pickUpAddress"
+														data-ng-model="pickUpAddress"
+														placeholder="pick up address goes here..."
+														readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+											<!-- /.form-group -->
+										</div>
+										<!-- /.box-body -->
+
+										<!-- /.box-footer -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h2 class="box-title">To Warehouse</h2>
+										</div>
+										<!-- /.box-header -->
+										<div class="box-body">
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : orderForm.toWarehouse.$invalid && orderForm.toWarehouse.$touched }">
+												<label for="shippingLocation" class="col-sm-2 control-label">Ship
+													To</label>
+												<div class="col-sm-10">
+													<ui-select ng-model="transferOrder.toWarehouse"
+														data-ng-required="true"
+														data-ng-disabled="itemsSent || !transferOrder.fromWarehouse"
+														name="toWarehouse"
+														data-ng-change="toWarehouseSelectEvent()"> <ui-select-match
+														placeholder="Select Warehouse..."> <span
+														ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+														repeat="warehouse as warehouse in (listOfToWarehouses | filter: $select.search) track by warehouse.id">
+													<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+													<p
+														data-ng-show="orderForm.toWarehouse.$invalid && orderForm.toWarehouse.$touched"
+														class="help-block">Where to ship items to?</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="shippingAddress" class="col-sm-2 control-label">Pick
+													Up Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3"
+														id="shippingAddress" data-ng-model="shippingAddress"
+														placeholder="shipping address goes here..."
+														readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+											<!-- /.form-group -->
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h2 class="box-title">ST Details</h2>
+										</div>
+										<!-- /.box-header -->
+										<div class="box-body">
+											<div class="form-group">
+												<label for="orderNo" class="col-sm-3 control-label">ST
+													#</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="orderNumber"
+														data-ng-model="transferOrder.orderNumber"
+														placeholder="Autogenerated once the order is saved!"
+														readonly="readonly">
+												</div>
+											</div>
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : orderForm.orderDate.$invalid && orderForm.orderDate.$touched }">
+												<label for="date" class="col-sm-3 control-label">Date</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control date"
+														name="orderDate" data-ng-disabled="itemsSent"
+														data-ng-required="true"
+														data-ng-model="transferOrder.orderDate"
+														placeholder="Select a date!">
+													<p
+														data-ng-show="orderForm.orderDate.$invalid && orderForm.orderDate.$touched"
+														class="help-block">Please select a date!</p>
+												</div>
+											</div>
+											<div class="form-group" style="display:none;" >
+												<label for="status" class="col-sm-3 control-label">Kit
+													Number</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="kitNumber"
+														data-ng-model="transferOrder.kitNumber"
+														data-ng-disabled="itemsSent"
+														placeholder="Enter kit number (Optional)">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="status" class="col-sm-3 control-label">Status</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="status"
+														data-ng-model="transferOrder.statusText"
+														placeholder="Autoupdated once the order is updated!"
+														readonly="readonly">
+												</div>
+											</div>
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+							</div>
+							<!-- /.row -->
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header">
+											<h3 class="box-title">Order Items</h3>
+											<div class="box-tools">
+												<button type="button" class="btn btn-warning"
+													data-ng-click="getOrderItemLine()"
+													data-ng-show="!itemsSent">Add Items to Order</button>
+											</div>
+										</div>
+										<div class="box-body table-responsive">
+											<table class="table table-bordered table-condensed"
+												data-ng-model="transferOrder.items">
+												<thead>
+													<tr>
+														<th class="col-md-2">Index</th>
+														<th class="col-md-2">Code</th>
+														<th class="col-md-4">Description</th>
+														<th class="col-md-2" colspan="2">Barcode</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr ng-repeat="orderLineItem in transferOrder.items track by $index">
+														<td>{{$index + 1}}</td>
+														<td>{{orderLineItem.itemCode}}</td>
+														<td>{{orderLineItem.description}}</td>
+														<td colspan="2">{{orderLineItem.barcode}}</td>
+													</tr>
+												</tbody>
+												<tfoot>
+													<tr>
+														<td colspan="2" rowspan="4">
+															<p data-ng-show="transferOrder.items.length == 0"
+																class="bg-danger">Order should have atleast one
+																item!</p>
+														</td>
+														<th>Total Quantity</th>
+														<td>{{quantityTotal}}</td>
+													</tr>
+													<tr>
+														<th>Qty. Dispatched</th>
+														<td>{{quantityDispatched}}</td>
+													</tr>
+													<tr>
+														<th>Qty. Delivered</th>
+														<td>{{quantityDelivered}}</td>
+													</tr>
+													<tr>
+														<th>Balance Quantity</th>
+														<td>{{quantityTotal - quantityDispatched}}</td>
+													</tr>
+												</tfoot>
+											</table>
+
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+							</div>
+							<div class="row">
+								<div class="col-xs-12 col-lg-offset-5 col-md-offset-4">
+									<div class="btn-groupbtn-group-justified" role="group">
+										<div class="btn-group" role="group">
+											<button type="submit" class="btn btn-success"
+												data-ng-disabled="orderForm.$invalid || transferOrder.items.length == 0"
+												data-ng-show="!isUpdateForm">Create</button>
+											<button type="button" class="btn btn-primary"
+												data-ng-click="saveOrder(true)"
+												data-ng-show="(!itemsSent) && isUpdateForm">Update</button>
+											<button class="btn btn-success" data-ng-click="exportData()"
+												data-ng-if="transferOrder.status == 11">Export</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!-- /.tab-pane -->
+					<div class="tab-pane" id="sendTab">
+						<form name="sendItemsForm" class="form-horizontal"
+							data-ng-submit="sendItems(sendItemsForm.$valid)" novalidate>
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h2 class="box-title">From Warehouse</h2>
+										</div>
+										<!-- /.box-header -->
+
+										<div class="box-body">
+											<div class="form-group">
+												<label for="shippingLocation" class="col-sm-2 control-label">Pick
+													From</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control"
+														data-ng-model="transferOrder.fromWarehouse.name"
+														readonly="readonly" />
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="shippingAddress" class="col-sm-2 control-label">Pick
+													Up Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3" id="pickUpAddress"
+														data-ng-model="pickUpAddress"
+														placeholder="pick up address goes here..."
+														readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+											<!-- /.form-group -->
+										</div>
+										<!-- /.box-body -->
+
+										<!-- /.box-footer -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h2 class="box-title">To Warehouse</h2>
+										</div>
+										<!-- /.box-header -->
+										<div class="box-body">
+											<div class="form-group">
+												<label for="shippingLocation" class="col-sm-2 control-label">Ship
+													To</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control"
+														data-ng-model="transferOrder.toWarehouse.name"
+														readonly="readonly" />
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="shippingAddress" class="col-sm-2 control-label">Pick
+													Up Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3"
+														id="shippingAddress" data-ng-model="shippingAddress"
+														placeholder="shipping address goes here..."
+														readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+											<!-- /.form-group -->
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h2 class="box-title">ST Details</h2>
+										</div>
+										<!-- /.box-header -->
+										<div class="box-body">
+											<div class="form-group">
+												<label for="orderNo" class="col-sm-3 control-label">ST
+													#</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="orderNumber"
+														data-ng-model="transferOrder.orderNumber"
+														placeholder="Autogenerated once the order is saved!"
+														readonly="readonly">
+												</div>
+											</div>
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : sendItemsForm.sendDate.$invalid && sendItemsForm.sendDate.$touched }">
+												<label for="date" class="col-sm-3 control-label">Disptach
+													Date</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control date"
+														name="sendDate" data-ng-disabled="itemsSent"
+														data-ng-required="true"
+														data-ng-model="transferOrder.sendDate"
+														placeholder="Select a date!">
+													<p
+														data-ng-show="sendItemsForm.sendDate.$invalid && sendItemsForm.sendDate.$touched"
+														class="help-block">Please select a date!</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="status" class="col-sm-3 control-label">Status</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="status"
+														data-ng-model="transferOrder.statusText"
+														placeholder="Autoupdated once the order is updated!"
+														readonly="readonly">
+												</div>
+											</div>
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+							</div>
+							<!-- /.row -->
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header">
+											<h3 class="box-title">Order Items</h3>
+											<div class="box-tools">
+												<button type="button" class="btn btn-warning"
+													data-ng-click="getDeliveryOrderItem()"
+													data-ng-hide="itemsSent"
+													data-ng-disabled="transferOrder.items.length == 0 || !transferOrder.sendDate">Add
+													Items to Delivery</button>
+											</div>
+										</div>
+										<div class="box-body table-responsive">
+											<table class="table table-bordered table-condensed"
+												data-ng-model="transferOrder.itemDetails">
+												<thead>
+													<tr>
+														<th class="col-md-4">Index</th>
+														<th class="col-md-4">Code</th>
+														<th class="col-md-4">Barcode Serial</th>
+														<th class="col-md-2">Sent On</th>
+														<th class="col-md-2">Quantity Shipped</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr
+														ng-repeat="deliveryLineItem in transferOrder.itemDetails track by $index">
+														<td>{{$index + 1}}</td>
+														<td>{{deliveryLineItem.itemCode}}</td>
+														<td>{{deliveryLineItem.barcode}}</td>
+														<td>{{deliveryLineItem.receiveDate | date:
+															'yyyy-MM-dd'}}</td>
+														<td>{{deliveryLineItem.quantityRequested}}</td>
+													</tr>
+												</tbody>
+												<tfoot>
+													<tr>
+														<th colspan="2" rowspan="3"></th>
+														<th>Quantity Dispatched</th>
+														<th>{{quantityDispatched}}</th>
+													</tr>
+													<tr>
+														<td>Total Quantity Expected</td>
+														<td>{{quantityTotal}}</td>
+													</tr>
+													<tr>
+														<td>Balance Quantity</td>
+														<td>{{quantityTotal - quantityDispatched}}</td>
+													</tr>
+												</tfoot>
+											</table>
+
+
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+							</div>
+							<div class="row">
+								<div class="col-xs-12 col-lg-offset-5 col-md-offset-4">
+									<div class="btn-groupbtn-group-justified" role="group">
+										<div class="btn-group" role="group">
+											<button type="button" class="btn btn-success update"
+												data-ng-click="autoFillDeliveryDetails()"
+												data-ng-hide="itemsSent"
+												data-ng-disabled="transferOrder.items.length == 0 || !transferOrder.sendDate">Autofill</button>
+											<button type="submit" class="btn btn-success update"
+												data-ng-disabled="transferOrder.itemDetails.length == 0 || !transferOrder.sendDate"
+												data-ng-show="(!itemsSent) && isUpdateForm">Send</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!-- /.tab-pane -->
+					<div class="tab-pane" id="receiveTab">
+						<form name="recvItemsForm" class="form-horizontal"
+							data-ng-submit="receiveItems(sendItemsForm.$valid)" novalidate>
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h2 class="box-title">From Warehouse</h2>
+										</div>
+										<!-- /.box-header -->
+
+										<div class="box-body">
+											<div class="form-group">
+												<label for="shippingLocation" class="col-sm-2 control-label">Pick
+													From</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control"
+														data-ng-model="transferOrder.fromWarehouse.name"
+														readonly="readonly" />
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="shippingAddress" class="col-sm-2 control-label">Pick
+													Up Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3" id="pickUpAddress"
+														data-ng-model="pickUpAddress"
+														placeholder="pick up address goes here..."
+														readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+											<!-- /.form-group -->
+										</div>
+										<!-- /.box-body -->
+
+										<!-- /.box-footer -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h2 class="box-title">To Warehouse</h2>
+										</div>
+										<!-- /.box-header -->
+										<div class="box-body">
+											<div class="form-group">
+												<label for="shippingLocation" class="col-sm-2 control-label">Ship
+													To</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control"
+														data-ng-model="transferOrder.toWarehouse.name"
+														readonly="readonly" />
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="shippingAddress" class="col-sm-2 control-label">Pick
+													Up Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3"
+														id="shippingAddress" data-ng-model="shippingAddress"
+														placeholder="shipping address goes here..."
+														readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+											<!-- /.form-group -->
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header with-border">
+											<h2 class="box-title">ST Details</h2>
+										</div>
+										<!-- /.box-header -->
+										<div class="box-body">
+											<div class="form-group">
+												<label for="orderNo" class="col-sm-3 control-label">ST
+													#</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="orderNumber"
+														data-ng-model="transferOrder.orderNumber"
+														placeholder="Autogenerated once the order is saved!"
+														readonly="readonly">
+												</div>
+											</div>
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : recvItemsForm.receiveDate.$invalid && recvItemsForm.receiveDate.$touched }">
+												<label for="date" class="col-sm-3 control-label">Received
+													Date</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control date"
+														name="receiveDate" data-ng-disabled="transferOrder.status == 11"
+														data-ng-required="true"
+														data-ng-model="transferOrder.receiveDate"
+														placeholder="Select a date!">
+													<p
+														data-ng-show="recvItemsForm.receiveDate.$invalid && recvItemsForm.receiveDate.$touched"
+														class="help-block">Please select a date!</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="status" class="col-sm-3 control-label">Status</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="status"
+														data-ng-model="transferOrder.statusText"
+														placeholder="Autoupdated once the order is updated!"
+														readonly="readonly">
+												</div>
+											</div>
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+							</div>
+							<!-- /.row -->
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="box box-primary">
+										<div class="box-header">
+											<h3 class="box-title">Order Items</h3>
+											<!-- <div class="box-tools">
+												<button type="button" class="btn btn-warning"
+													data-ng-click="getDeliveryOrderItem()"
+													data-ng-hide="itemsSent"
+													data-ng-disabled="transferOrder.items.length == 0 || !transferOrder.sendDate">Add
+													Items to Delivery</button>
+											</div> -->
+										</div>
+										<div class="box-body table-responsive">
+											<table class="table table-bordered table-condensed"
+												data-ng-model="transferOrder.recvdItemDetails">
+												<thead>
+													<tr>
+														<th class="col-md-4">Index</th>
+														<th class="col-md-4">Code</th>
+														<th class="col-md-4">Barcode Serial</th>
+														<th class="col-md-2">Received On</th>
+														<th class="col-md-2">Quantity Shipped</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr ng-repeat="deliveryLineItem in transferOrder.recvdItemDetails track by $index">
+														<td>{{$index + 1}}</td>
+														<td>{{deliveryLineItem.itemCode}}</td>
+														<td>{{deliveryLineItem.barcode}}</td>
+														<td>{{deliveryLineItem.receiveDate | date:
+															'yyyy-MM-dd'}}</td>
+														<td>{{deliveryLineItem.quantityRequested}}</td>
+													</tr>
+												</tbody>
+												<tfoot>
+													<tr>
+														<th colspan="2" rowspan="3"></th>
+														<th>Quantity Received</th>
+														<th>{{quantityDelivered}}</th>
+													</tr>
+													<tr>
+														<td>Total Quantity Expected</td>
+														<td>{{quantityTotal}}</td>
+													</tr>
+													<tr>
+														<td>Balance Quantity</td>
+														<td>{{quantityTotal - quantityDelivered}}</td>
+													</tr>
+												</tfoot>
+											</table>
+
+
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+							</div>
+							<div class="row">
+								<div class="col-xs-12 col-lg-offset-5 col-md-offset-4">
+									<div class="btn-groupbtn-group-justified" role="group">
+										<div class="btn-group" role="group">
+											<button type="button" class="btn btn-success update"
+												data-ng-click="autoFillDeliveryRecvDetails()"
+												data-ng-hide="!itemsSent || transferOrder.status == 11"
+												data-ng-disabled="transferOrder.items.length == 0 || !transferOrder.receiveDate">Autofill</button>
+											<button type="submit" class="btn btn-success update"
+												data-ng-disabled="transferOrder.recvdItemDetails.length == 0 || !transferOrder.receiveDate"
+												data-ng-show="itemsSent && isUpdateForm && transferOrder.status != 11">Received</button>
+											<button class="btn btn-success" data-ng-click="exportData()"
+												data-ng-if="transferOrder.status == 11">Export</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!-- /.tab-pane -->
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div class="modal" id="addOrderItemModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Add Item to Order</h4>
+				</div>
+				<div class="modal-body">
+					<form role="form">
+						<div class="box-body">
+							<div class="row">
+								<div class="col-xs-12">
+									<label for="code">Barcode (Search by Item code, barcode,
+										tag)</label>
+									<ui-select ng-model="$parent.selectedItem"
+										data-ng-change="itemSelectEvent()"> <ui-select-match
+										placeholder="type atleast 3 characters to search..">
+									<span ng-bind="$select.selected.barcode"></span> </ui-select-match> <ui-select-choices
+										repeat="item as item in (listOfItems | filter: $select.search) track by item.barcode"
+										refresh="fetchRemoteItems($select.search)" refresh-delay="0">
+									<span ng-bind="item.itemCode +'-'+ item.barcode"></span> </ui-select-choices> </ui-select>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<label for="vendorAlias">Vendor Alias</label> <input
+										type="text" class="form-control" id="vendorAlias"
+										data-ng-model="vendorAlias"
+										placeholder="Note the vendor alias here...">
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<label for="description">Description</label>
+									<textarea class="form-control" id="description"
+										data-ng-model="description"
+										placeholder="Note the vendor alias here..."></textarea>
+								</div>
+							</div>
+						</div>
+						<!-- /.box-body -->
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger pull-left"
+						data-dismiss="modal" id="close">Close</button>
+					<button type="button" id="submit" class="btn btn-success"
+						data-ng-click="addItemToOrder()">Save changes</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+
+	<div class="modal" id="getDeliveryOrderItemModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Add Items to Delivery</h4>
+				</div>
+				<div class="modal-body">
+					<form role="form">
+						<div class="box-body">
+							<div class="row">
+								<div class="col-xs-12">
+									<label for="code">Code</label>
+									<ui-select ng-model="$parent.deliveryItem"
+										data-ng-change="deliveryItemSelectEvent()"> <ui-select-match
+										placeholder="Select Item from order..."> <span
+										ng-bind="$select.selected.itemCode"></span> </ui-select-match> <ui-select-choices
+										repeat="item as item in (transferOrder.items | filter: $select.search)">
+									<span
+										ng-bind="item.itemCode +' - '+ item.quantity +' '+ item.unit"></span>
+									</ui-select-choices> </ui-select>
+								</div>
+							</div>
+							<div class="row">
+								<!-- <div class="col-xs-6">
+									<label for="deliveryItemQuantity">Quantity</label> <input
+										type="text" class="form-control" id="deliveryItemQuantity"
+										data-ng-model="deliveryItemQuantity"
+										data-ng-change="deliveryItemQuantityChangeEvent()">
+								</div> -->
+								<div class="col-xs-12">
+									<label for="deliveryItemQuantityOrdered">Quantity
+										Ordered</label> <input type="text" class="form-control"
+										id="deliveryItemQuantityOrdered"
+										data-ng-model="deliveryItemQuantityOrdered"
+										readonly="readonly">
+								</div>
+							</div>
+							<div class="row" data-ng-if="getSerialNumbers"
+								data-ng-repeat="deliveryItemSerialEntry in listOfDeliveryItems track by $index">
+								<div class="col-xs-12">
+									<label for="vendorId">Serial {{$index + 1}}</label> <input
+										type="text" class="form-control" id="vendorId"
+										data-ng-model="listOfDeliveryItems[$index].vendorId"
+										placeholder="Vendor Serial #">
+								</div>
+
+							</div>
+						</div>
+						<!-- /.box-body -->
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger pull-left"
+						data-dismiss="modal" id="close">Close</button>
+					<button type="button" id="submit" class="btn btn-success"
+						data-ng-click="addItemToDeliveryList()">Save changes</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+
+</div>
+<div class="clearfix"></div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('.date').daterangepicker({
+			singleDatePicker : true,
+			showDropdowns : true,
+			format : 'YYYY-MM-DD'
+		});
+		//$(".select2").select2();
+	});
+</script>

@@ -1,0 +1,248 @@
+<style type="text/css">
+.modal.modal-wide .modal-dialog {
+	width: 90%;
+}
+
+.modal-wide .modal-body {
+	overflow-y: auto;
+}
+
+.modal .modal-body p {
+	margin-bottom: 900px
+}
+</style>
+
+<div data-ng-controller="salesReportController"
+	data-ng-init="fetchInitData()">
+
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i> Sales - Consolidated Report
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li><a class="active">Sales Report</a></li>
+		</ol>
+	</section>
+
+	<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-3">
+				<div class="col-md-12 col-xs-12">
+					<label for="selectedDateRange" class="control-label">Select
+						Date Range</label> <input type="text" class="form-control daterange"
+						name="selectedDateRange" data-ng-model="selectedDateRange"
+						placeholder="Select Date..">
+					<label for="selectedWarehouse" class="control-label">Select
+						Warehouse</label>
+					<ui-select ng-model="kitItemDetails.selectedWarehouse"
+						data-ng-required="true"
+						name="selectedWarehouse"
+						data-ng-change="warehouseSelectEvent()"> <ui-select-match
+						placeholder="Select Warehouse..."> <span
+						ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+						repeat="warehouse as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+					<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+				</div>
+				<div class="col-md-12 col-xs-12">
+					<button class="btn btn-block btn-success update"
+						style="margin-top: 1.5em;" data-ng-disabled="!selectedDateRange"
+						data-loading-text="Crunching Numbers..."
+						data-ng-click="fetchReportData()">Fetch Data!</button>
+					<button class="btn btn-block btn-success update"
+						style="margin-top: 1.5em;" data-ng-disabled="!selectedDateRange"
+						data-loading-text="Exporting..."
+						data-ng-if="kitItemDetails.length > 0"
+						data-ng-click="exportData()">Export</button>
+				</div>
+			</div>
+			<div class="col-xs-9">
+				<!-- LINE CHART -->
+				<div class="box box-info">
+					<div class="box-header with-border">
+						<h3 class="box-title">Line Chart</h3>
+						<div class="box-tools pull-right">
+							<button class="btn btn-box-tool" data-widget="collapse">
+								<i class="fa fa-minus"></i>
+							</button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="chart">
+							<canvas id="lineChart" style="height: 250px"></canvas>
+						</div>
+						<div id="js-legend" class="chart-legend"></div>
+					</div>
+					<!-- /.box-body -->
+					<!-- Loading (remove the following to stop the loading)-->
+					<div class="overlay" data-ng-if="isLoadingData">
+						<i class="fa fa-refresh fa-spin"></i>
+					</div>
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- /.col -->
+		</div>
+		<!-- /.row -->
+		<div class="row">
+			<div class="col-xs-12">
+<!-- Total sales, total expenses, blended discount, total stock loss. -->
+				<div class="box box-danger">
+					<div class="box-header">
+						<h3 class="box-title">Consolidated Report</h3>
+					</div>
+					<div class="box-body">
+						<table id="itemsTbl" class="table table-bordered table-striped"
+							data-ng-model="kitItemDetails" datatable="ng"
+							dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-xs-1">Index</th>
+									<th class="col-xs-1">Kit #</th>
+									<th class="col-xs-1">Status</th>
+									<th class="col-xs-2">Assigned Warehouse</th>
+									<th class="col-xs-2">Sales</th>
+									<th class="col-xs-2">Expenses</th>
+									<th class="col-xs-2">Discount</th>
+									<th class="col-xs-2">Stock Loss</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="item in kitItemDetails track by $index">
+									<td>{{$index + 1}}</td>
+									<td><button type="button"
+											data-ng-click="openKitRequest(item.kitNumber)"
+											class="btn bg-teal">{{item.kitNumber}}</button></td>
+									<td>{{item.statusText}}</td>
+									<td>{{item.assignedWarehouse}}</td>
+									<td>{{item.sales}}</td>
+									<td>{{item.expenses}}</td>
+									<td>{{item.discount}}</td>
+									<td>{{item.stockLoss}}</td>
+								</tr>
+						</table>
+
+					</div>
+					<!-- /.box-body -->
+					<!-- Loading (remove the following to stop the loading)-->
+					<div class="overlay" data-ng-if="isLoadingData">
+						<i class="fa fa-refresh fa-spin"></i>
+					</div>
+					<!-- end loading -->
+				</div>
+				<!-- /.box -->
+
+
+			</div>
+		</div>
+		<!-- /.row -->
+
+
+	</section>
+	
+	
+	
+	<div class="modal modal-wide" id="requestItemsModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Items for request : {{
+						selectedRequest.kitNumber }}</h4>
+				</div>
+				<div class="modal-body" style="padding: 1em;">
+					<div class="box-body table-responsive">
+						<table id="itemsTbl" class="table table-bordered table-striped"
+							data-ng-model="selectedRequest.items" datatable="ng"
+							dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-xs-1">Index</th>
+									<th class="col-xs-3">Item</th>
+									<th class="col-xs-2">Current Location</th>
+									<th class="col-xs-1">Barcode</th>
+									<th class="col-xs-1">Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr
+									data-ng-repeat="item in selectedRequest.items track by $index">
+									<td>{{ $index + 1 }}</td>
+									<td>Code: {{ item.item.code }}<br /> Description: {{
+										item.item.description }}<br /> Vendor Alias: {{
+										item.item.vendorAlias }}<br />
+									</td>
+									<td>{{ item.currentLocation.name }}</td>
+									<td>{{ item.barcode }}</td>
+									<td>{{item.statusText}}</td>
+								</tr>
+						</table>
+					</div>
+					<!-- /.box-body -->
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+</div>
+<div class="clearfix"></div>
+<script>
+	$(document)
+			.ready(
+					function() {
+						var today = moment().format('YYYY-MM-DD');
+
+						$('.daterange')
+								.daterangepicker(
+										{
+											ranges : {
+												'Today' : [ moment(), moment() ],
+												'Yesterday' : [
+														moment().subtract(1,
+																'days'),
+														moment().subtract(1,
+																'days') ],
+												'Last 7 Days' : [
+														moment().subtract(6,
+																'days'),
+														moment() ],
+												'Last 30 Days' : [
+														moment().subtract(29,
+																'days'),
+														moment() ],
+												'This Month' : [
+														moment().startOf(
+																'month'),
+														moment().endOf('month') ],
+												'Last Month' : [
+														moment()
+																.subtract(1,
+																		'month')
+																.startOf(
+																		'month'),
+														moment().subtract(1,
+																'month').endOf(
+																'month') ]
+											},
+											startDate : moment().subtract(29,
+													'days'),
+											endDate : moment()
+										},
+										function(start, end) {
+											$('#reportrange span')
+													.html(
+															start
+																	.format('MMMM D, YYYY')
+																	+ ' - '
+																	+ end
+																			.format('MMMM D, YYYY'));
+										});
+					});
+</script>

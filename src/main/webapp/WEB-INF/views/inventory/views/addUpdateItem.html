@@ -1,0 +1,674 @@
+<div data-ng-controller="createItemController" id="createItemController"
+	data-ng-init="fetchInitData()">
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i> Inventory Items
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li><a href="" data-ng-click="appRouting('items')">Items</a></li>
+			<li class="active">Create</li>
+		</ol>
+	</section>
+
+
+	<section class="invoice">
+
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-6" style="margin-top: -1em;">
+				<h3>Create Item</h3>
+			</div>
+			<div class="col-xs-6">
+				<!-- Single button -->
+				<div class="btn-group pull-right">
+					<button type="button" class="btn btn-primary dropdown-toggle"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="" data-ng-click="appRouting('items/create')">Create
+								Item</a></li>
+						<li><a href="" data-ng-click="appRouting('items/import')">Import</a></li>
+						<li><a href="" data-ng-click="appRouting('items')">View
+								All Items</a></li>
+						<li><a href="" data-ng-click="appRouting('items/search')">Search
+								Items</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /.col -->
+		</div>
+
+
+		<!-- title row -->
+		<div class="row">
+
+			<div class="col-xs-12">
+
+				<ul class="nav nav-tabs">
+					<li class="active"><a showtab="" href="#itemDetails"
+						data-toggle="tab">Item Details</a></li>
+					<li data-ng-show="isUpdateForm"><a showtab=""
+						href="#itemCount" data-toggle="tab">Warehouse Items</a></li>
+					<li data-ng-show="isUpdateForm && currentItem.serialized"><a
+						showtab="" href="#itemInventory" data-toggle="tab">Item
+							Inventory</a></li>
+					<li data-ng-show="isUpdateForm"><a showtab=""
+						href="#vendorHistory" data-toggle="tab">Vendors</a></li>
+				</ul>
+			</div>
+			<!-- /.col -->
+
+			<div class="nav-tabs-custom">
+				<div class="tab-content">
+
+					<div class="tab-pane active" id="itemDetails">
+						<form name="itemForm" class="form-horizontal"
+							data-ng-submit="saveItem(itemForm.$valid)" novalidate>
+							<div class="row">
+
+								<div class="col-lg-6 col-md-6 col-xs-12"
+									style="margin-top: 1em;">
+									<div class="box box-primary box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">Basic Details</h2>
+										</div>
+										<!-- /.box-header -->
+
+										<div class="box-body">
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : itemForm.code.$invalid && itemForm.code.$touched }">
+												<label for="code" class="col-sm-2 control-label">Code*</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control" name="code"
+														data-ng-model="currentItem.code"
+														placeholder="This will be a unique identification..."
+														data-ng-disabled="isUpdateForm" data-ng-required="true">
+													<p
+														data-ng-show="itemForm.code.$invalid && itemForm.code.$touched"
+														class="help-block">Item Code is required!</p>
+												</div>
+
+											</div>
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : itemForm.category.$invalid && itemForm.category.$touched }">
+												<label for="category" class="col-sm-2 control-label">Item
+													Category*</label>
+												<div class="col-sm-10">
+													<ui-select ng-model="currentItem.category" name="category"
+														data-ng-required="true"> <ui-select-match>
+													<span ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+														repeat="category as category in (listOfCategories | filter: $select.search) track by category.id">
+													<span ng-bind="category.name"></span> </ui-select-choices> </ui-select>
+												</div>
+												<p
+													data-ng-show="itemForm.category.$invalid && itemForm.category.$touched"
+													class="help-block">Categorize the item!</p>
+											</div>
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : itemForm.description.$invalid && itemForm.description.$touched }">
+												<label for="description" class="col-sm-2 control-label">Description*</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3" name="description"
+														data-ng-model="currentItem.description"
+														placeholder="Describe the item here..."
+														data-ng-required="true"></textarea>
+													<p
+														data-ng-show="itemForm.description.$invalid && itemForm.description.$touched"
+														class="help-block">Describe the item!</p>
+												</div>
+											</div>
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : itemForm.unit.$invalid && itemForm.unit.$touched }">
+												<label for="unitOfMeasurement"
+													class="col-sm-2 control-label">Default Units*</label>
+												<div class="col-sm-10">
+													<ui-select ng-model="currentItem.unitOfMeasurement"
+														name="unit" data-ng-required="true"> <ui-select-match>
+													<span ng-bind="$select.selected.notation"></span> </ui-select-match> <ui-select-choices
+														repeat="unit.notation as unit in (listOfUnits | filter: $select.search)">
+													<span ng-bind="unit.notation"></span> </ui-select-choices> </ui-select>
+													<p
+														data-ng-show="itemForm.description.$invalid && itemForm.description.$touched"
+														class="help-block">How the item should be measured</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="tags" class="col-sm-2 control-label">Tags</label>
+												<div class="col-sm-10">
+													<ui-select multiple tagging="tagTransform"
+														data-ng-model="currentItem.tags" theme="bootstrap"
+														ng-disabled="disabled"> <ui-select-match
+														placeholder="Add tags...">{{$item.name}}</ui-select-match>
+													<ui-select-choices
+														repeat="tag in listOfTags | propsFilter: {name: $select.search}">
+													<div data-ng-if="tag.isTag"
+														data-ng-bind-html="tag.name +' <small>(new)</small>'| highlight: $select.search"></div>
+													<div data-ng-if="!tag.isTag"
+														data-ng-bind-html="tag.name + tag.isTag| highlight: $select.search"></div>
+													</ui-select-choices> </ui-select>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="code" class="col-sm-2 control-label">Alias</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control" name="vendorAlias"
+														data-ng-model="currentItem.vendorAlias"
+														placeholder="A vendor alias or universal alias...">
+												</div>
+											</div>
+											<!-- /.form-group -->
+										</div>
+										<!-- /.box-body -->
+
+										<!-- /.box-footer -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+
+
+								<div class="col-lg-6 col-md-6 col-xs-12"
+									style="margin-top: 1em;">
+									<div class="box box-primary box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">Inventory Details</h2>
+										</div>
+										<!-- /.box-header -->
+										<div class="box-body">
+
+											<div class="form-group">
+												<div class="checkbox col-sm-6">
+													<label> <input type="checkbox"
+														data-ng-model="currentItem.serialized"> Is Product
+														Serialized?
+													</label>
+												</div>
+											</div>
+
+											<div class="form-group" data-ng-disabled="isUpdateForm"
+												data-ng-if="!currentItem.serialized">
+												<label for="defaultWarehouse" class="col-sm-4 control-label">Default
+													Warehouse</label>
+												<div class="col-sm-8">
+													<ui-select ng-model="$parent.defaultWarehouse"
+														name="defaultWarehouse"> <ui-select-match>
+													<span ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+														repeat="warehouse as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+													<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+												</div>
+											</div>
+
+											<div class="form-group" data-ng-if="!currentItem.serialized"
+												data-ng-hide="isUpdateForm || !defaultWarehouse"
+												data-ng-class="{ 'has-error' : itemForm.initialQuantity.$invalid && itemForm.initialQuantity.$touched }">
+												<label for="initialQuantity" class="col-sm-4 control-label">Initial
+													Quantity*</label>
+												<div class="col-sm-8">
+													<input type="text" class="form-control"
+														name="initialQuantity" data-ng-model="initialQuantity"
+														placeholder="Initial Product Quantity...cannot be changed later!"
+														data-ng-required="defaultWarehouse">
+													<p
+														data-ng-show="itemForm.initialQuantity.$invalid && itemForm.initialQuantity.$touched"
+														class="help-block">Enter initial quantity greater than
+														zero</p>
+												</div>
+											</div>
+
+											<div class="form-group" data-ng-show="isUpdateForm">
+												<label for="quantityInHand" class="col-sm-4 control-label">Quantity
+													in Hand</label>
+												<div class="col-sm-8">
+													<input type="text" class="form-control" id="quantityInHand"
+														data-ng-model="currentItem.quantityInHand"
+														data-ng-disabled="true">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label for="barcode" class="col-sm-4 control-label">Barcode
+													Seed</label>
+												<div class="col-sm-8">
+													<input type="text" class="form-control" id="barcode"
+														data-ng-model="currentItem.barcode"
+														placeholder="Seed for all barcodes generated for this item"
+														data-ng-disabled="isUpdateForm">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label for="normalPrice" class="col-sm-4 control-label">Normal
+													Price </label>
+												<div class="col-sm-8">
+													<div class="input-group">
+														<span class="input-group-addon"><i
+															class="fa fa-inr"></i></span> <input type="text"
+															class="form-control" id="normalPrice"
+															data-ng-model="currentItem.normalPrice"
+															placeholder="Normal Price for product">
+													</div>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="wholesalePrice" class="col-sm-4 control-label">Wholesale
+													Price </label>
+												<div class="col-sm-8">
+													<div class="input-group">
+														<span class="input-group-addon"><i
+															class="fa fa-inr"></i></span> <input type="text"
+															class="form-control" id="wholesalePrice"
+															data-ng-model="currentItem.wholesalePrice"
+															placeholder="Wholesale Price for product">
+													</div>
+												</div>
+											</div>
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+
+							</div>
+							<!-- /.row -->
+
+							<div class="row">
+
+								<div class="col-xs-12">
+									<div class="box box-primary box-solid">
+										<div class="box-header">
+											<h3 class="box-title">Item Attributes</h3>
+										</div>
+										<!-- /.box-header -->
+										<div class="box-body">
+											<div class="row" style="vertical-align: text-bottom;">
+												<div class="col-md-5 col-xs-12 form-group">
+													<label for="attributeName" class=" col-sm-2 control-label">Name</label>
+													<div class="col-sm-10">
+														<ui-select ng-model="$parent.attribute"
+															data-ng-disabled="isEditingAttribute"
+															data-ng-change="fetchAttributeValues()"> <ui-select-match>
+														<span ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+															repeat="item as item in (listOfAttributes | propsFilter: {name: $select.search}) track by item.id">
+														<span ng-bind="item.name"></span> </ui-select-choices> </ui-select>
+													</div>
+												</div>
+												<div class="col-md-5 col-xs-12 form-group"
+													data-ng-show="attribute">
+													<label for="defaultWarehouse"
+														class="col-sm-2 control-label">Value</label>
+													<div class="col-sm-10">
+														<ui-select multiple name="attributeValue" sortable="true"
+															close-on-select="false"
+															data-ng-model="$parent.attributeValue" theme="bootstrap">
+														<ui-select-match placeholder="Add attribute values...">{{$item}}</ui-select-match>
+														<ui-select-choices
+															repeat="value in listOfAttributeValues | filter:$select.search">
+														{{value}} </ui-select-choices> </ui-select>
+													</div>
+												</div>
+												<div class="col-md-2 col-xs-12 form-group"
+													data-ng-show="attribute">
+													<button type="button" class="btn btn-default"
+														data-ng-disabled="attributeValue.length == 0"
+														data-ng-click="addAttributeToList()">Add</button>
+													<button type="button" class="btn btn-default"
+														data-ng-click="resetAttributeForm()">Clear</button>
+												</div>
+											</div>
+										</div>
+										<div class="box-body table-responsive">
+
+											<table class="table table-condensed"
+												data-ng-model="currentItem.itemAttributes">
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Value</th>
+														<th></th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr ng-repeat="itemAttribute in currentItem.itemAttributes">
+														<td>{{itemAttribute.attribute.name}}</td>
+														<td>{{itemAttribute.value.join(', ')}}</td>
+														<td><a href=""
+															data-ng-click="editAttribute(itemAttribute)"><i
+																class="fa fa-edit" alt="Edit"></i></a></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+
+								<div class="col-xs-12" style="display:none;">
+									<div class="box box-info box-solid">
+										<div class="box-header">
+											<h3 class="box-title">Item Storage</h3>
+										</div>
+										<!-- /.box-header -->
+										<div class="box-body">
+											<div class="row">
+												<div class="col-xs-12">
+													<ui-select ng-model="$parent.location.warehouse"
+														name="selectedWarehouse"> <ui-select-match
+														placeholder="Select a warehouse"> <span
+														ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+														repeat="warehouse.name as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+													<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+												</div>
+												<div class="col-xs-12" style="margin-top: 1em;">
+													<div class="col-md-3 col-xs-12"
+														data-ng-show="location.warehouse">
+														<input type="text" class="form-control" name="shelf"
+															data-ng-model="location.shelf.name"
+															placeholder="Write the shelf number here..." />
+													</div>
+													<div class="col-md-3 col-xs-12"
+														data-ng-show="location.warehouse">
+														<input type="text" class="form-control" name="rack"
+															data-ng-model="location.rack.name"
+															placeholder="Write the rack number here..." />
+													</div>
+													<div class="col-md-3 col-xs-12"
+														data-ng-show="location.warehouse">
+														<input type="text" class="form-control" name="crate"
+															data-ng-model="location.crate.name"
+															placeholder="Write the crate number here..." />
+													</div>
+													<div class="col-md-3 col-xs-12"
+														data-ng-show="location.warehouse">
+														<button type="button" class="btn btn-default"
+															data-ng-disabled="!location.warehouse"
+															data-ng-click="addStorageLocation()">Add</button>
+														<button type="button" class="btn btn-default"
+															data-ng-click="resetStorageLocationForm()">Clear</button>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="box-body table-responsive">
+
+											<table id="storageTbl"
+												class="table table-bordered table-striped"
+												data-ng-model="currentItem.itemStorageLocations"
+												datatable="ng" dt-options="dtOptions">
+												<thead>
+													<tr style="text-align: center">
+														<th class="col-md-3">Warehouse</th>
+														<th class="col-md-3">Shelf</th>
+														<th class="col-md-3">Rack</th>
+														<th class="col-md-3">Crate</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr style="text-align: center"
+														data-ng-repeat="location in currentItem.itemStorageLocations track by $index">
+														<td class="col-md-3">{{ location.warehouse }}</td>
+														<td class="col-md-3"><h4>
+																<span class="label label-success">{{
+																	location.shelf.name }}</span>
+															</h4></td>
+														<td class="col-md-3"><h4>
+																<span class="label label-danger">{{
+																	location.rack.name }}</span>
+															</h4></td>
+														<td class="col-md-3"><p class="text text-info">{{
+																location.crate.name }}</p></td>
+													</tr>
+											</table>
+
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+
+							</div>
+
+							<div class="row">
+								<div class="col-xs-12 col-lg-offset-5 col-md-offset-4">
+									<div class="btn-groupbtn-group-justified" role="group">
+										<div class="btn-group" role="group"
+											data-ng-hide="isUpdateForm">
+											<button type="submit" class="btn btn-success"
+												data-ng-disabled="itemForm.$invalid">Save</button>
+										</div>
+										<div class="btn-group" role="group"
+											data-ng-show="isUpdateForm">
+											<button type="submit" class="btn btn-success"
+												data-ng-disabled="itemForm.$invalid">Update</button>
+										</div>
+										<div class="btn-group" role="group"
+											data-ng-show="isUpdateForm">
+											<button type="button" class="btn btn-danger">Deactivate</button>
+										</div>
+										<div class="btn-group" role="group"
+											data-ng-show="isUpdateForm">
+											<button type="button" class="btn btn-warning">Reset</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
+						</form>
+					</div>
+
+					<div class="tab-pane" id="itemCount">
+						<div class="row">
+							<div class="box-body"
+								style="margin-top: 2em; display:none;">
+											<div class="row" style="vertical-align: text-bottom;">
+												<div class="col-xs-12 form-group">
+													<label for="attributeName" class=" col-sm-2 control-label">Warehouse</label>
+													<div class="col-sm-10">
+													<ui-select ng-model="$parent.count.warehouseName" data-ng-change="warehouseSelectEvent()"
+														name="selectedWarehouse"> <ui-select-match
+														placeholder="Select a warehouse"> <span
+														ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+														repeat="warehouse.name as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+													<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+													</div>
+												</div>
+												<div class="col-md-3 col-xs-12 form-group"
+													data-ng-show="count.warehouseName">
+													<label for="warningPt"
+														class="col-sm-4 control-label">Warning Pt</label>
+													<div class="col-sm-8">
+														<input type="text" class="form-control" data-ng-model="count.warningPoint" />
+													</div>
+												</div>
+												<div class="col-md-3 col-xs-12 form-group"
+													data-ng-show="count.warehouseName">
+													<label for="reorderPt"
+														class="col-sm-4 control-label">Reorder Pt</label>
+													<div class="col-sm-8">
+														<input type="text" class="form-control" data-ng-model="count.reorderPoint" />
+													</div>
+												</div>
+												<div class="col-md-3 col-xs-12 form-group"
+													data-ng-show="count.warehouseName">
+													<label for="reorderQty"
+														class="col-sm-4 control-label">Reorder Qty.</label>
+													<div class="col-sm-8">
+														<input type="text" class="form-control" data-ng-model="count.reorderQuantity" />
+													</div>
+												</div>
+												<div class="col-md-3 col-xs-12 form-group"
+													data-ng-show="count.warehouseName">
+													<button type="button" class="btn btn-default"
+														data-ng-disabled=""
+														data-ng-click="setInventoryLevel()">Add</button>
+													<button type="button" class="btn btn-default"
+														data-ng-click="resetInventoryLevelForm()">Clear</button>
+												</div>
+											</div>
+							</div>
+							<div class="box-body table-responsive">
+								<table id="countTbl" class="table table-bordered table-striped"
+									data-ng-model="currentItem.itemCount" datatable="ng"
+									dt-options="dtOptions">
+									<thead>
+										<tr style="text-align: center">
+											<th class="col-md-2">Warehouse</th>
+											<th class="col-md-1">Barcode</th>
+											<th class="col-md-1">Status</th>
+											<th class="col-md-1">Reorder Point</th>
+											<th class="col-md-1">Unit Price</th>
+											<th class="col-md-2">Wholesale Price</th>
+											<th class="col-md-1">Shelf</th>
+											<th class="col-md-1">Rack</th>
+											<th class="col-md-1">Crate</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr style="text-align: center"
+											data-ng-repeat="count in currentItem.itemCount track by $index">
+											<td class="col-md-2">{{ count.warehouse.name }}</td>
+											<td class="col-md-1">{{ count.barcode }}</td>
+											<td class="col-md-1">{{ count.statusText }}</td>
+											<td class="col-md-1">{{ count.reorderPoint }}</td>
+											<td class="col-md-1">{{ count.unitPrice }}</td>
+											<td class="col-md-2">{{ count.wholesalePrice }}</td>
+											<td class="col-md-1">{{ count.shelf.name }}</td>
+											<td class="col-md-1">{{ count.rack.name }}</td>
+											<td class="col-md-1">{{ count.crate.name }}</td>
+										</tr>
+								</table>
+							</div>
+							<!-- /.box-body -->
+						</div>
+
+						<div class="row">
+								<div class="col-xs-12 col-lg-offset-5 col-md-offset-4">
+									<div class="btn-groupbtn-group-justified" role="group">
+										<div class="btn-group" role="group"
+											data-ng-show="isUpdateForm">
+											<button type="submit" data-ng-click="updateItemInventoryLevels()" class="btn btn-success">
+												Update
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
+					</div>
+
+					<div class="tab-pane" id="itemInventory">
+						<div class="row">
+							<div class="box-body"
+								data-ng-show="currentItem.itemDetails.length == 0"
+								style="margin-top: 2em;">
+								<div class="alert alert-warning alert-dismissable">
+									<h4>
+										<i class="icon fa fa-warning"></i> Oops,
+									</h4>
+									it seems you don't have inventory for this item!
+								</div>
+							</div>
+							<div class="box-body table-responsive"
+								data-ng-show="currentItem.itemDetails.length > 0">
+								<table id="detailsTbl"
+									class="table table-bordered table-striped"
+									data-ng-model="currentItem.itemDetails" datatable="ng"
+									dt-options="dtOptions">
+									<thead>
+										<tr style="text-align: center">
+											<th class="col-md-3">Barcode</th>
+											<th class="col-md-3">Qty</th>
+											<th class="col-md-3">Warehouse</th>
+											<th class="col-md-3">Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr style="text-align: center"
+											data-ng-repeat="count in currentItem.itemDetails track by $index"
+											data-ng-if="count.status != 7">
+											<td class="col-md-3"><p class="text-default">
+													<i class="fa fa-map-barcode"></i>{{count.barcode}}
+												</p></td>
+											<td class="col-md-3"><h4>
+													<span class="label label-default">{{
+														count.quantityRequested }}</span>
+												</h4></td>
+											<td class="col-md-3"><p class="text-success">
+													<i class="fa fa-map-marker"></i>{{count.warehouse}}
+												</p></td>
+											<td class="col-md-3"><h4>
+													<span class="label label-success"
+														data-ng-if="count.status == 'Available'">{{count.status}}</span>
+													<span class="label label-primary"
+														data-ng-if="count.status == 'Reserved'">{{count.status}}</span>
+													<span class="label label-warning"
+														data-ng-if="count.status == 'Issued'">{{count.status}}</span>
+													<span class="label bg-lime"
+														data-ng-if="count.status == 'Invoiced'">{{count.status}}</span>
+													<span class="label label-danger"
+														data-ng-if="count.status == 'Restock'">{{count.status}}</span>
+													<span class="label label-info"
+														data-ng-if="count.status == 'In Transit'">{{count.status}}</span>
+												</h4></td>
+										</tr>
+								</table>
+							</div>
+							<!-- /.box-body -->
+						</div>
+
+					</div>
+
+					<div class="tab-pane" id="vendorHistory">
+						<div class="row">
+							<div class="box-body table-responsive"
+								data-ng-show="listOfVendors.length > 0">
+								<table id="vendorsTbl"
+									class="table table-bordered table-striped"
+									data-ng-init="fetchAllVendors()" data-ng-model="listOfVendors"
+									datatable="ng" dt-options="dtOptions">
+									<thead>
+										<tr>
+											<th>Name</th>
+											<th>Location</th>
+											<th>City</th>
+											<th>Contact #</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr data-ng-repeat="vendor in listOfVendors track by $index">
+											<td>{{ vendor.name }}</td>
+											<td>{{ vendor.location }}</td>
+											<td>{{ vendor.city }} - {{ vendor.pincode }}</td>
+											<td>{{ vendor.contactNo }}</td>
+										</tr>
+								</table>
+
+							</div>
+							<!-- /.col -->
+						</div>
+
+					</div>
+
+
+
+				</div>
+			</div>
+
+		</div>
+	</section>
+
+</div>
+<div class="clearfix"></div>
+
+<script>
+	$(document).ready(function() {
+		//$("#vendorsTbl").DataTable();
+		//$('#detailsTbl').DataTable();
+	});
+</script>

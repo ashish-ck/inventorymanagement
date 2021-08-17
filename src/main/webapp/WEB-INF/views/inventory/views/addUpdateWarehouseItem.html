@@ -1,0 +1,137 @@
+<div>
+	<div class="modal" id="createWarehouseItemModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Update Item</h4>
+				</div>
+				<form name="itemForm"
+					data-ng-submit="updateItem(item)"
+					novalidate>
+					<div class="modal-body">
+						<div class="box-body">
+							<div class="row">
+	<div class="col-xs-6 form-group"
+		data-ng-class="{ 'has-error' : itemForm.name.$invalid && itemForm.name.$touched }">
+		<label for="warehouse">Warehouse</label> <input type="text"
+			class="form-control" name="warehouse" readonly
+			data-ng-model="item.warehouse.name" placeholder="Warehouse"
+			data-ng-required="true">
+	</div>
+	<div class="col-xs-6 form-group"
+		data-ng-class="{ 'has-error' : itemForm.itemcode.$invalid && itemForm.itemcode.$touched }">
+		<label for="itemcode">Item Code</label> <input type="text"
+			class="form-control" name="itemcode" readonly
+			data-ng-model="item.itemCode" placeholder="Item Code"
+			data-ng-required="true">
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-6 form-group"
+		data-ng-class="{ 'has-error' : itemForm.barcode.$invalid && itemForm.barcode.$touched }">
+		<label for="barcode">Barcode</label> <input type="text"
+			class="form-control" name="barcode"
+			data-ng-model="item.barcode" placeholder="Barcode" readonly
+			data-ng-required="true">
+	</div>
+	<div class="col-xs-6 form-group"
+		data-ng-class="{ 'has-error' : itemForm.status.$invalid && itemForm.status.$touched }">
+		<label for="status">Status</label> <input type="text"
+			class="form-control" name="status"
+			data-ng-model="itemStatuses[item.status.toString()]" placeholder="Status" readonly
+			data-ng-required="true">
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-6 form-group"
+		data-ng-class="{ 'has-error' : itemForm.reorderPoint.$invalid && itemForm.reorderPoint.$touched }">
+		<label for="reorderPoint">Reorder Point</label> <input type="text"
+			class="form-control" name="reorderPoint" readonly
+			data-ng-model="item.reorderPoint" placeholder="Reorder Point"
+			data-ng-required="true">
+	</div>
+	<div class="col-xs-6 form-group"
+		data-ng-class="{ 'has-error' : itemForm.unitPrice.$invalid && itemForm.unitPrice.$touched }">
+		<label for="unitPrice">Unit Price</label> <input type="text"
+			class="form-control" name="unitPrice" readonly
+			data-ng-model="item.unitPrice" placeholder="Unit Price"
+			data-ng-required="true">
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-6 form-group"
+		data-ng-class="{ 'has-error' : itemForm.wholesalePrice.$invalid && itemForm.wholesalePrice.$touched }">
+		<label for="wholesalePrice">Wholesale Price</label> <input type="text"
+			class="form-control" name="wholesalePrice" readonly
+			data-ng-model="item.wholesalePrice" placeholder="Wholesale Price"
+			data-ng-required="true">
+	</div>
+	<div class="col-xs-6 form-group"
+		data-ng-class="{ 'has-error' : itemForm.selectedShelf.$invalid && itemForm.selectedShelf.$touched }">
+		<label for="shelfname">Shelf</label>
+		<ui-select ng-model="item.shelf.name"
+			data-ng-change="shelfSelectEvent($select.selected)"
+			name="selectedShelf"
+			data-ng-disabled="listOfShelves.length == 0"
+			data-ng-required="true"> 
+		 <ui-select-match
+			placeholder="Select a shelf to update"> <span
+			ng-bind="$select.selected.name"></span> 
+		 </ui-select-match> 
+		<ui-select-choices
+				repeat="shelf.name as shelf in (listOfShelves | filter: $select.search) track by $index">
+			<span ng-bind="shelf.name"></span> 
+		</ui-select-choices> 
+	</ui-select>
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-6 form-group"
+		data-ng-class="{ 'has-error' : itemForm.selectedRack.$invalid && itemForm.selectedRack.$touched }">
+		<label for="rack">Rack</label>
+		<ui-select ng-model="item.rack.name"
+			data-ng-change="rackSelectEvent($select.selected)"
+			name="selectedRack"
+			data-ng-disabled="listOfRacks.length == 0"
+			data-ng-required="true"> <ui-select-match
+			placeholder="Select a rack to update"> <span
+			ng-bind="$select.selected.name"></span></ui-select-match> <ui-select-choices
+			repeat="rack.name as rack in (listOfRacks | filter: $select.search) track by $index">
+		<span ng-bind="rack.name"></span></ui-select-choices></ui-select>
+	</div>
+	<div class="col-xs-6 form-group"
+		data-ng-class="{ 'has-error' : itemForm.selectedCrate.$invalid && itemForm.selectedCrate.$touched }">
+		<label for="crate">Crate</label>
+		<ui-select ng-model="item.crate.name"
+			data-ng-change="crateSelectEvent($select.selected)"
+			name="selectedCrate"
+			data-ng-disabled="listOfCrates.length == 0"
+			data-ng-required="true"> <ui-select-match
+			placeholder="Select a crate to update"> <span
+			ng-bind="$select.selected.name"></span></ui-select-match> <ui-select-choices
+			repeat="crate.name as crate in (listOfCrates | filter: $select.search) track by $index">
+		<span ng-bind="crate.name"></span> </ui-select-choices></ui-select>
+	</div>
+</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger pull-left" id="btnUpdate"
+							data-dismiss="modal" id="close">Close</button>
+						<button type="submit" class="btn btn-success"
+							data-ng-disabled="itemForm.$invalid">Save changes</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="clearfix"></div>
+<script type="text/javascript">
+	$(document).ready(function() {
+	});
+</script>

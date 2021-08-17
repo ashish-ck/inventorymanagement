@@ -1,0 +1,115 @@
+buildscript {
+    ext {
+        springBootVersion = '1.3.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
+        classpath('io.spring.gradle:dependency-management-plugin:0.5.2.RELEASE')
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'idea'
+apply plugin: 'spring-boot' 
+apply plugin: 'io.spring.dependency-management' 
+apply plugin: 'war'
+
+war {
+    baseName = 'InventoryApp'
+    version = '0.0.1'
+}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+	//querydslapt
+    providedRuntime
+}
+
+configurations.all {
+   exclude group: "commons-logging", module: "commons-logging"
+}
+
+dependencies {
+	compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('org.springframework.boot:spring-boot-starter-jdbc')
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.apache.commons:commons-dbcp2:2.1.1')
+    compile('commons-fileupload:commons-fileupload:1.3.1')
+    compile('commons-io:commons-io:2.4')
+    
+    compile group: 'javax.interceptor', name: 'javax.interceptor-api', version: '1.2'
+    
+    compile('com.fasterxml.jackson.core:jackson-core:2.6.3')
+    compile('io.jsonwebtoken:jjwt:0.6.0')
+    
+    compile('org.apache.tiles:tiles-core:3.0.5')
+	compile('org.apache.tiles:tiles-servlet:3.0.5')
+	compile('org.apache.tiles:tiles-jsp:3.0.5')
+	compile group: 'javax.servlet.jsp.jstl', name: 'javax.servlet.jsp.jstl-api', version: '1.2.1'
+    compile ('javax.servlet:jstl:1.2')
+    compile('org.apache.tomcat.embed:tomcat-embed-jasper:8.0.27')
+    compile('org.apache.poi:poi:3.13')
+    compile('org.apache.poi:poi-ooxml:3.13')
+    
+    compile ('org.slf4j:jcl-over-slf4j:1.7.12')
+    compile ('ch.qos.logback:logback-classic:1.1.3')
+    compile ('net.sf.barcode4j:barcode4j:2.1')
+    
+	/* compile("com.mysema.querydsl:querydsl-apt:3.7.0:jpa")
+    compile('com.mysema.querydsl:querydsl-jpa:3.7.0')
+    querydslapt group: 'com.mysema.querydsl', name: 'querydsl-jpa', version: '3.7.0', classifier:   'apt-one-jar', transitive: false */
+    
+    runtime('mysql:mysql-connector-java')
+    providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+    
+    compile('org.springframework.boot:spring-boot-starter-test')
+    compile('io.springfox:springfox-swagger2:2.5.0')
+    compile('io.springfox:springfox-swagger-ui:2.5.0')
+}
+
+
+task prodDeploy<< {
+	bootRun.systemProperty 'spring.profiles.active', 'production'
+}
+
+task devDeploy<< {
+	bootRun.systemProperty 'spring.profiles.active', 'development'
+}
+
+task runTests<< {
+	bootRun.systemProperty 'spring.profiles.active', 'test'
+}
+
+task testJavadoc(type: Javadoc) {
+  source = sourceSets.test.allJava
+  classpath = sourceSets.test.compileClasspath
+  destinationDir = file("${buildDir}/docs/testjavadoc")
+}
+
+task mainJavadoc(type: Javadoc) {
+  source = sourceSets.main.allJava
+  classpath = sourceSets.main.compileClasspath
+  destinationDir = file("${buildDir}/docs/mainjavadoc")
+}
+
+eclipse {
+    classpath {
+         containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+         containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.7'
+}

@@ -1,0 +1,1023 @@
+<style type="text/css">
+	.modal.modal-wide .modal-dialog {
+	width: 90%;
+	}
+	.modal-wide .modal-body {
+	overflow-y: auto;
+	}
+	.modal .modal-body p {
+	margin-bottom: 900px
+	}
+</style>
+<div data-ng-controller="kitController" id="kitController" data-ng-init="fetchInitData()">
+	<div id="selectedSubkitRowRef" style='display:none;'>
+		<div class="row" id="selectedSubkitRow">
+			<div class="col-xs-12">
+				<div class="box">
+					<div class="box-body table-responsive">
+						<div class="row pull-right">
+							<div class="col-md-4 col-xs-12">
+								<button type="submit" id="selectedSubkitRowBtnUpdate" ng-click="updateItemDetails()" data-loading="Updating..."
+									class="btn btn-success btnUpdate"></button>
+							</div>
+						</div>
+						<h4 class="modal-title">Items for request : {{ selectedSubkit.subkitNumber }}<br/><br/></h4>
+						<table id="itemsTbl" data-ng-if="isLoading()" class="table table-bordered table-striped" data-ng-model="selectedSubkit.items" datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-xs-3">Index</th>
+									<th class="col-xs-3">Item</th>
+									<th class="col-xs-1">Current Location</th>
+									<th class="col-xs-1">Barcode</th>
+									<th class="col-xs-1">Status</th>
+									<th class="col-xs-1">Select <input type="checkbox" data-ng-model="selectAll.value"
+													ng-true-value="true" ng-false-value="false" data-ng-change="selectAllEvent(selectedSubkit.items)"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="item in selectedSubkit.items track by $index">
+									<td>{{$index + 1}}</td>
+									<td>Code: {{ item.item.code }}<br/> Description: {{ item.item.description }}<br/></td>
+									<td><i class="fa fa-map-marker"></i> {{ item.currentLocation.name }}</td>
+									<td><input type="text" class="form-control" data-ng-model="item.barcode"/></td>
+									<td>{{item.statusText}}</td>
+									<td><input type="checkbox" data-ng-model="item.toUpdateStatus" data-ng-change="itemSelectEvent(selectedSubkit.items)"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i>Kit Request : {{ selectedRequest.kitNumber }}
+		</h1>
+		<div style="text-align: center" data-ng-if="isLoading()">
+                       <i class="fa fa-cog fa-spin fa-2x"></i>
+                   </div>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+				class="fa fa-dashboard"></i> Home</a></li>
+			<li><a class="active">Kit Request </a></li>
+		</ol>
+	</section>
+	<section class="invoice">
+		<div class="row">
+			<div class="nav-tabs-custom">
+				<ul class="nav nav-tabs">
+					<li class="active"><a showtab="" href="#requestsTab" data-toggle="tab">Kit Details</a></li>
+					<li class="" ng-show="selectedSubkit.subkitNumber"><a showtab="" href="#subkitDetailsTab" data-toggle="tab">Subkit Details</a></li>
+					<li class="" ng-show="reserveItemsList.length > 0 && (selectedSubkit.status < 1000 || selectedSubkit.status == 1700)"><a showtab="" href="#reserveTab" data-toggle="tab">Reserve</a></li>
+					<li class="" ng-show="sendItemsList.length > 0"><a showtab="" href="#sendTab" data-toggle="tab">Send</a></li>
+					<li class="" ng-show="receiveItemsList.length > 0"><a showtab="" href="#receiveTab" data-toggle="tab">Receive</a></li>
+					<li class="" ng-show="issueToMechanicItemsList.length > 0"><a showtab="" href="#issueToMechanicTab" data-toggle="tab">Issue</a></li>
+					<li class="" ng-show="purchaseOrder.orderNo"><a showtab="" href="#purchaseOrderDetailsTab" data-toggle="tab">Purchase Order Details</a></li>
+					<li class="" ng-show="showReturnButtons(900)||showReturnButtons(1000)||showReturnButtons(1100)||showReturnButtons(1200)"><a showtab="" href="#returnTab" data-toggle="tab">Return</a></li>
+					<li class="" ng-show="returnScrapItemsList.length > 0"><a showtab="" href="#scrapReturnTab" data-toggle="tab">Scrap</a></li>
+					<li class="pull-right"><a href="" class="text-muted" data-ng-click="refreshData()"><i class="fa fa-refresh"></i></a>
+					</li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane active" id="requestsTab">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body table-responsive">
+										<h4 class="modal-title">Items for request : {{ selectedRequest.kitNumber }}<br/><br/></h4>
+										<h4 class="modal-title">Status : {{ selectedRequest.statusText }}<br/><br/></h4>
+										<h4 class="modal-title"><i class="fa fa-map-marker"></i> Hub : {{ selectedRequest.requestWarehouse.name }}<br/><br/></h4>
+										<h4 class="modal-title"><i class="fa fa-map-marker"></i> Inventory : {{ selectedRequest.assignedWarehouse.name }}<br/><br/></h4>
+										<h4 class="modal-title"><i class="fa fa-calendar"></i> Date : {{ selectedRequest.lastModDttm | date: 'dd MMM, yyyy, h:mm a' }}<br/><br/></h4>
+										<button ng-click="exportData()" class="btn btn-success btnUpdate">Export</button>
+										<table id="item1sTbl" class="table table-bordered table-striped" data-ng-model="selectedRequest.items" datatable="ng" dt-options="dtOptions">
+											<thead>
+												<tr>
+													<th class="col-xs-1">Index</th>
+													<th class="col-xs-3">Item</th>
+													<th class="col-xs-1">Subkit Number</th>
+													<th class="col-xs-1">Current Location</th>
+													<th class="col-xs-1">Barcode</th>
+													<th class="col-xs-1">Status</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr data-ng-repeat="item in selectedRequest.items track by $index">
+													<td>{{$index + 1}}</td>
+													<td>Code: {{ item.item.code }}<br/> Description: {{
+														item.item.description }}<br />
+													</td>
+													<td>{{ item.subkitNumber }}</td>
+													<td><i class="fa fa-map-marker"></i> {{ item.currentLocation.name }}</td>
+													<td>{{ item.barcode }}</td>
+													<td>{{item.statusText}}</td>
+												</tr>
+											</tbody>
+										</table>
+										<h4 class="modal-title">Subkits<br/><br/></h4>
+										<table id="subkitTbl" class="table table-bordered table-striped">
+											<thead>
+												<tr>
+													<th class="col-xs-1">Index</th>
+													<th class="col-xs-1">Subkit Number</th>
+													<th class="col-xs-1">Location</th>
+													<th class="col-xs-1">Details</th>
+													<th class="col-xs-1">Status</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr data-ng-repeat="subkit in selectedRequest.subkits track by $index">
+													<td>{{$index + 1}}</td>
+													<td>{{ subkit.subkitNumber}}</td>
+													<td>{{ subkit.location.name}}</td>
+													<td><button type="button" class="btn btn-link" data-ng-click="viewDetails(subkit)">View Details </button></td>
+													<td>{{ subkit.statusText }}</td>
+												</tr>
+											</tbody>
+										</table>
+										<h4 class="modal-title">Purchase Orders<br/><br/></h4>
+										<table id="subkitTbl" class="table table-bordered table-striped">
+											<thead>
+												<tr>
+													<th class="col-xs-1">Index</th>
+													<th class="col-xs-1">Order Number</th>
+													<th class="col-xs-1">Shipping Warehouse</th>
+													<th class="col-xs-1">Details</th>
+													<th class="col-xs-1">Status</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr data-ng-repeat="order in listOfOrders track by $index">
+													<td>{{$index + 1}}</td>
+													<td>{{ order.orderNo }}</td>
+													<td>{{ order.shippingWarehouse.name }}</td>
+													<td><button type="button" class="btn btn-link" data-ng-click="viewOrderDetails(order)">View Details </button></td>
+													<td>{{ order.status[order.status.length - 1] }}</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="subkitDetailsTab">
+						<h4 class="modal-title">Subkit Number : {{ selectedSubkit.subkitNumber }}<br/><br/></h4>
+						<h4 class="modal-title">Status : {{ selectedSubkit.statusText }}<br/><br/></h4>
+						<h4 class="modal-title"><i class="fa fa-map-marker"></i> Subkit Location : {{ selectedSubkit.location.name }}<br/><br/></h4>
+						<h4 class="modal-title"><i class="fa fa-calendar"></i> Date : {{ selectedSubkit.lastModDttm | date: 'dd MMM, yyyy, h:mm a'}}<br/><br/></h4>
+						<button type="submit" id="changeSubkitLocationBtnUpdate" ng-click="changeSubkitLocation()" data-loading="Updating..."
+										class="btn btn-success btnUpdate" ng-if="showChangeSubkitLocationBtn()">Change Subkit Location</button>
+						<table id="itemsTbl" class="table table-bordered table-striped" data-ng-model="selectedSubkit.items" datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-xs-1">Index</th>
+									<th class="col-xs-3">Item</th>
+									<th class="col-xs-1">Current Location</th>
+									<th class="col-xs-1">Barcode</th>
+									<th class="col-xs-1">Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="item in selectedSubkit.items track by $index">
+									<td>{{$index + 1}}</td>
+									<td>Code: {{ item.item.code }}<br/> Description: {{ item.item.description }}<br/></td>
+									<td><i class="fa fa-map-marker"></i> {{ item.currentLocation.name }}</td>
+									<td>{{ item.barcode }}</td>
+									<td>{{item.statusText}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="tab-pane" id="reserveTab">
+						<div class="row" id="reserveRow">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body table-responsive">
+										<div class="row pull-right">
+											<div class="col-md-4">
+												<button type="submit" id="reserveRowBtnUpdate" ng-if="reserveItemsList.length > 0 && displayRights()" ng-click="updateItemDetails(300)" data-loading="Updating..."
+													class="btn btn-success btnUpdate">Reserve</button>
+											</div>
+											<div class="col-md-4">
+												<button type="submit" id="createPurchaseOrderBtn" ng-if="reserveItemsList.length > 0 && displayRights() && showPurchaseOrderButton(selectedListOfItems) && selectedSubkit.status != 500" ng-click="createPurchaseOrder()" data-loading="Updating..."
+													class="btn btn-success btnUpdate">Create Purchase Order</button>
+											</div>
+										</div>
+										<h4 class="modal-title">Items for request : {{ selectedSubkit.subkitNumber }}<br/><br/></h4>
+										<table id="itemsTbl" class="table table-bordered table-striped" data-ng-model="reserveItemsList" datatable="ng" dt-options="dtOptions">
+											<thead>
+												<tr>
+													<th class="col-xs-1">Index</th>
+													<th class="col-xs-3">Item</th>
+													<th class="col-xs-1">Current Location</th>
+													<th class="col-xs-1">Barcode</th>
+													<th class="col-xs-1" ng-if="showBarcodeSuggestion(item)">Suggestion</th>
+													<th class="col-xs-1">Status</th>
+													<th class="col-xs-1">Select <input type="checkbox" data-ng-model="selectAll.value"
+													ng-true-value="true" ng-false-value="false" data-ng-change="selectAllEvent(reserveItemsList)"></th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr data-ng-repeat="item in reserveItemsList track by $index">
+													<td>{{$index + 1}}</td>
+													<td>Code: {{ item.item.code }}<br/> Description: {{ item.item.description }}<br/></td>
+													<td><i class="fa fa-map-marker"></i> {{ item.currentLocation.name }}</td>
+													<td><input type="text" class="form-control" data-ng-model="item.barcode"/></td>
+													<td ng-if="showBarcodeSuggestion(item)">{{item.suggestion}}</td>
+													<td>{{item.statusText}}</td>
+													<td><input type="checkbox" data-ng-model="item.toUpdateStatus" data-ng-change="itemSelectEvent(reserveItemsList)"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+</div>
+					</div>
+					<div class="tab-pane" id="sendTab">
+						<div class="row" id="sendRow">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body table-responsive">
+										<div class="row pull-right">
+											<div class="col-md-4 col-xs-12">
+												<button type="submit" id="sendRowBtnUpdate" ng-if="sendItemsList.length > 0 && displayRights()" 
+												 ng-click="updateItemDetails(400)" data-loading="Updating..."
+													class="btn btn-success btnUpdate">Send</button>
+											</div>
+										</div>
+										<h4 class="modal-title">Items for request : {{ selectedSubkit.subkitNumber }}<br/><br/></h4>
+										<table id="itemsTbl" class="table table-bordered table-striped" data-ng-model="sendItemsList" datatable="ng" dt-options="dtOptions">
+											<thead>
+												<tr>
+													<th class="col-xs-1">Index</th>
+													<th class="col-xs-3">Item</th>
+													<th class="col-xs-1">Current Location</th>
+													<th class="col-xs-1">Barcode</th>
+													<th class="col-xs-1">Status</th>
+													<th class="col-xs-1">Select <input type="checkbox" data-ng-model="selectAll.value"
+													ng-true-value="true" ng-false-value="false" data-ng-change="selectAllEvent(sendItemsList)"></th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr data-ng-repeat="item in sendItemsList track by $index">
+													<td>{{$index + 1}}</td>
+													<td>Code: {{ item.item.code }}<br/> Description: {{ item.item.description }}<br/></td>
+													<td><i class="fa fa-map-marker"></i> {{ item.currentLocation.name }}</td>
+													<td>{{ item.barcode }}</td>
+													<td>{{item.statusText}}</td>
+													<td><input type="checkbox" data-ng-model="item.toUpdateStatus" data-ng-change="itemSelectEvent(sendItemsList)"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="receiveTab">
+						<div class="row" id="receiveRow">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body table-responsive">
+										<div class="row pull-right">
+											<div class="col-md-4 col-xs-12">
+												<button type="submit" id="sendRowBtnUpdate"  ng-if="receiveItemsList.length > 0 && displayRights()" ng-click="updateItemDetails(500)" data-loading="Updating..."
+													class="btn btn-success btnUpdate">Receive</button>
+											</div>
+										</div>
+										<h4 class="modal-title">Items for request : {{ selectedSubkit.subkitNumber }}<br/><br/></h4>
+										<table id="itemsTbl" class="table table-bordered table-striped" data-ng-model="receiveItemsList" datatable="ng" dt-options="dtOptions">
+											<thead>
+												<tr>
+													<th class="col-xs-1">Index</th>
+													<th class="col-xs-3">Item</th>
+													<th class="col-xs-1">Current Location</th>
+													<th class="col-xs-1">Barcode</th>
+													<th class="col-xs-1">Status</th>
+													<th class="col-xs-1">Select <input type="checkbox" data-ng-model="selectAll.value"
+													ng-true-value="true" ng-false-value="false"  data-ng-change="selectAllEvent(receiveItemsList)"></th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr data-ng-repeat="item in receiveItemsList track by $index">
+													<td>{{$index + 1}}</td>
+													<td>Code: {{ item.item.code }}<br/> Description: {{ item.item.description }}<br/></td>
+													<td><i class="fa fa-map-marker"></i> {{ item.currentLocation.name }}</td>
+													<td>{{item.barcode}}</td>
+													<td>{{item.statusText}}</td>
+													<td><input type="checkbox" data-ng-model="item.toUpdateStatus" data-ng-change="itemSelectEvent(receiveItemsList)"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="issueToMechanicTab">
+						<div class="row" id="issueToMechanicRow">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body table-responsive">
+										<div class="row pull-right">
+											<div class="col-md-4 col-xs-12">
+												<button type="submit" id="sendRowBtnUpdate"  ng-if="issueToMechanicItemsList.length > 0 && displayRights()" ng-click="updateItemDetails(600)" data-loading="Updating..."
+													class="btn btn-success btnUpdate">Issue</button>
+											</div>
+										</div>
+										<h4 class="modal-title">Items for request : {{ selectedSubkit.subkitNumber }}<br/><br/></h4>
+										<table id="itemsTbl" class="table table-bordered table-striped" data-ng-model="issueToMechanicItemsList" datatable="ng" dt-options="dtOptions">
+											<thead>
+												<tr>
+													<th class="col-xs-1">Index</th>
+													<th class="col-xs-3">Item</th>
+													<th class="col-xs-1">Current Location</th>
+													<th class="col-xs-1">Barcode</th>
+													<th class="col-xs-1">Status</th>
+													<th class="col-xs-1">Select <input type="checkbox"  data-ng-model="selectAll.value"
+													ng-true-value="true" ng-false-value="false" data-ng-change="selectAllEvent(issueToMechanicItemsList)"></th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr data-ng-repeat="item in issueToMechanicItemsList track by $index">
+													<td>{{$index + 1}}</td>
+													<td>Code: {{ item.item.code }}<br/> Description: {{ item.item.description }}<br/></td>
+													<td><i class="fa fa-map-marker"></i> {{ item.currentLocation.name }}</td>
+													<td>{{item.barcode}}</td>
+													<td>{{item.statusText}}</td>
+													<td><input type="checkbox" data-ng-model="item.toUpdateStatus" data-ng-change="itemSelectEvent(issueToMechanicItemsList)"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="purchaseOrderDetailsTab">
+						<ul class="nav nav-tabs">
+							<li class="active"><a showtab="" href="#orderTab" data-toggle="tab">Purchase Order Details</a></li>
+							<li class="" ng-show="true"><a showtab="" href="#deliveryTab" data-toggle="tab">Delivery</a></li>
+						</ul>
+						<div class="tab-content">
+							<div class="tab-pane active" id="orderTab">
+						<form name="orderForm" class="form-horizontal" data-ng-submit="saveOrder(orderForm.$valid)" novalidate>
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary  box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">Vendor Details</h2>
+										</div>
+										<div class="box-body">
+											<div class="form-group" data-ng-class="{ 'has-error' : orderForm.vendor.$invalid &amp;&amp; orderForm.vendor.$touched }">
+												<label for="vendor" class="col-sm-2 control-label">Vendor</label>
+												<div class="col-sm-10">
+													<ui-select ng-model="purchaseOrder.vendor" data-ng-required="true" data-ng-disabled="itemsReceived || isOrderInvoiced" name="vendor" data-ng-change="vendorSelectEvent()">
+													<ui-select-match placeholder="Select Vendor...">
+													<span ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices repeat="vendor as vendor in (listOfVendors | filter: $select.search) track by vendor.id">
+													<span ng-bind="vendor.name"></span> </ui-select-choices> </ui-select>
+													<p data-ng-show="orderForm.vendor.$invalid &amp;&amp; orderForm.vendor.$touched" class="help-block">Please select a vendor!</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="contactPerson" class="col-sm-2 control-label">Contact
+													Person</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control" id="contactPerson" data-ng-disabled="itemsReceived || isOrderInvoiced" data-ng-model="purchaseOrder.contactPerson">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="contactNumber" class="col-sm-2 control-label">Contact
+													#</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control" id="contactNumber" data-ng-disabled="itemsReceived || isOrderInvoiced" data-ng-model="purchaseOrder.contactNumber">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="vendorAddress" class="col-sm-2 control-label">Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3" id="vendorAddress" data-ng-model="vendorAddress" placeholder="Vendor address goes here..." readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary  box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">Shipping Details</h2>
+										</div>
+										<div class="box-body">
+											<div class="form-group">
+												<label for="shippingWarehouse" class="col-sm-2 control-label">Ship To</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control" rows="3" id="shippingWarehouse" data-ng-model="purchaseOrder.shippingWarehouse.name" placeholder="Enter Shipping goes here..." readonly="readonly">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="shippingAddress" class="col-sm-2 control-label">Shipping Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3" id="shippingAddress" data-ng-model="shippingAddress" placeholder="Enter Shipping goes here..." readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">PO Details</h2>
+										</div>
+										<div class="box-body">
+											<div class="form-group">
+												<label for="orderNo" class="col-sm-3 control-label">PO
+													#</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="orderNo" data-ng-model="purchaseOrder.orderNo" placeholder="Autogenerated once the order is saved!" readonly="readonly">
+												</div>
+											</div>
+											<div class="form-group" data-ng-class="{ 'has-error' : orderForm.date.$invalid &amp;&amp; orderForm.date.$touched }">
+												<label for="date" class="col-sm-3 control-label">Date</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control date" name="date" data-ng-disabled="itemsReceived || isOrderInvoiced" data-ng-required="true" data-ng-model="purchaseOrder.date" placeholder="">
+													<p data-ng-show="orderForm.date.$invalid &amp;&amp; orderForm.date.$touched" class="help-block">Where to ship the items?</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="status" class="col-sm-3 control-label">Kit Number</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="kitNumber" data-ng-model="purchaseOrder.kitNumber" readonly="readonly" placeholder="Enter a kit number for which the order is placed!">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="vatTax" class="col-sm-3 control-label">VAT Tax</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="vatTax" readonly="readonly"
+														data-ng-model="purchaseOrder.vatTax"
+														placeholder="VAT Tax">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="status" class="col-sm-3 control-label">Status</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="status" data-ng-model="purchaseOrder.status[purchaseOrder.status.length - 1]" placeholder="Autoupdated once the order is updated!" readonly="readonly">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="box box-primary  box-solid">
+										<div class="box-header">
+											<h3 class="box-title">Order Items</h3>
+											<div class="box-tools">
+											</div>
+										</div>
+										<div class="box-body table-responsive">
+											<table class="table table-bordered table-condensed" data-ng-model="purchaseOrder.items">
+												<thead>
+													<tr>
+														<th class="col-md-3">Index</th>
+														<th class="col-md-3">Code</th>
+														<th class="col-md-6">Description</th>
+														<th class="col-md-6">Barcode</th>
+														<th class="col-md-6">Wholesale Price</th>
+														<th class="col-md-6">Unit Price</th>
+														<th class="col-md-1" ng-if="purchaseOrder.status.length == 1"></th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr ng-repeat="orderLineItem in purchaseOrder.items track by $index ">
+														<td>{{$index + 1}}</td>
+														<td>{{orderLineItem.itemCode}}</td>
+														<td>{{orderLineItem.description}}</td>
+														<td>{{orderLineItem.barcode}}</td>
+														<td>{{orderLineItem.wholesalePrice}}</td>
+														<td>{{orderLineItem.unitPrice}}</td>
+														<td ng-if="purchaseOrder.status.length == 1">
+														<a href="" data-ng-click="editItem($index)" data-ng-if="!itemsReceived">Edit</a><br>
+														<a href="" data-ng-click="removeItem($index)" data-ng-if="!itemsReceived">Remove</a></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12 col-lg-offset-5 col-md-offset-4">
+									<div class="btn-groupbtn-group-justified" role="group">
+										<div class="btn-group" role="group">
+											<button type="submit" class="btn btn-success update" data-ng-disabled="orderForm.$invalid || purchaseOrder.items.length == 0" data-ng-show="isUpdateForm &amp;&amp; !itemsReceived">Update</button>
+											<button type="button" class="btn btn-danger update" data-ng-click="returnItems()" data-ng-show="itemsReceived">Reopen
+												& Return</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="tab-pane" id="deliveryTab">
+						<div class="row">
+							<form class="form-horizontal">
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary  box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">Vendor Details</h2>
+										</div>
+										<div class="box-body">
+											<div class="form-group">
+												<label for="vendor" class="col-sm-2 control-label">Vendor</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control" id="vendor" data-ng-model="purchaseOrder.vendor.name" readonly="readonly">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary  box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">Shipping Details</h2>
+										</div>
+										<div class="box-body">
+											<div class="form-group">
+												<label for="shippingLocation" class="col-sm-2 control-label">Ship
+													To</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control" id="shippingLocation" data-ng-model="purchaseOrder.shippingWarehouse.name" readonly="readonly">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="shippingAddress" class="col-sm-2 control-label">Shipping
+													Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3" id="shippingAddress" data-ng-model="shippingAddress" placeholder="Enter Shipping goes here..." readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary  box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">PO Details</h2>
+										</div>
+										<div class="box-body">
+											<div class="form-group">
+												<label for="orderNo" class="col-sm-3 control-label">PO
+													#</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="orderNo" data-ng-model="purchaseOrder.orderNo" placeholder="Autogenerated once the order is saved!" readonly="readonly">
+												</div>
+											</div>
+											<div class="form-group" data-ng-hide="itemsReceived">
+												<label for="shippingDate" class="col-sm-3 control-label">Shipping
+													Date</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control date" name="shippingDate" data-ng-model="purchaseOrder.shippingDate" placeholder="">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="status" class="col-sm-3 control-label">VAT Tax</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="vatTax" data-ng-model="purchaseOrder.vatTax" placeholder="Autoupdated once the order is updated!" readonly="readonly">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="status" class="col-sm-3 control-label">Status</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="status" data-ng-model="purchaseOrder.status" placeholder="Autoupdated once the order is updated!" readonly="readonly">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box box-primary  box-solid">
+									<div class="box-header">
+										<h3 class="box-title">Delivery Items</h3>
+										<div class="box-tools">
+											<button type="button" class="btn btn-warning" data-ng-click="getDeliveryOrderItem()" data-ng-hide="itemsReceived" data-ng-disabled="purchaseOrder.items.length == 0 || !purchaseOrder.shippingDate">Add
+												Items to Delivery</button>
+										</div>
+									</div>
+									<div class="box-body table-responsive">
+										<table class="table table-bordered table-condensed" data-ng-model="purchaseOrder.itemDetails">
+											<thead>
+												<tr>
+													<th class="col-md-4">Index</th>
+													<th class="col-md-4">Code</th>
+													<th class="col-md-4">Barcode</th>
+													<th class="col-md-4">Wholesale Price</th>
+													<th class="col-md-4">Unit Price</th>
+													<th class="col-md-2">Received On</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr ng-repeat="deliveryLineItem in purchaseOrder.itemDetails track by $index">
+													<td>{{$index + 1}}</td>
+													<td>{{deliveryLineItem.itemCode}}</td>
+													<td>{{deliveryLineItem.barcode}}</td>
+													<td>{{deliveryLineItem.wholesalePrice}}</td>
+													<td>{{deliveryLineItem.unitPrice}}</td>
+													<td>{{deliveryLineItem.receiveDate | date: 'yyyy-MM-dd'}}</td>
+												</tr>
+											</tbody>
+											<tfoot>
+												<tr>
+													<th colspan="2" rowspan="3"></th>
+													<th>Quantity Received</th>
+													<th>{{quantityReceived}}</th>
+												</tr>
+												<tr>
+													<td>Total Quantity Expected</td>
+													<td>{{quantityExpected}}</td>
+												</tr>
+												<tr>
+													<td>Balance Quantity</td>
+													<td>{{balanceQuantity}}</td>
+												</tr>
+											</tfoot>
+										</table>
+
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12 col-lg-offset-5 col-md-offset-4">
+								<div class="btn-groupbtn-group-justified" role="group">
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-success update" data-ng-click="autoFillDeliveryDetails()" data-ng-hide="itemsReceived" data-ng-disabled="purchaseOrder.items.length == 0 || purchaseOrder.itemDetails.length > 0 || !purchaseOrder.shippingDate || disableReceive()">Autofill</button>
+										<button type="button" class="btn btn-success update" data-ng-click="receiveOrderItems()" data-ng-hide="itemsReceived" data-ng-disabled="disableReceive()">Receive</button>
+										<button type="button" class="btn btn-danger update" data-ng-click="returnItems()" data-ng-show="itemsReceived">Reopen
+											& Return</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="returnTab">
+					<div class="row" id="receiveRow">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body table-responsive">
+										<div class="row pull-right">
+											<div>
+												<button type="submit" id="sendRowBtnUpdate" ng-click="updateItemDetails(900)" data-loading="Updating..."
+													class="btn btn-success btnUpdate" ng-if="showReturnButtons(900)">Return Received By Hub</button>
+											</div>
+											<div>
+												<button type="submit" id="sendRowBtnUpdate" ng-click="updateItemDetails(1000)" data-loading="Updating..."
+													class="btn btn-success btnUpdate" ng-if="showReturnButtons(1000)">Return Dispatched By Hub</button>
+											</div>
+											<div>
+												<button type="submit" id="sendRowBtnUpdate" ng-click="updateItemDetails(1100)" data-loading="Updating..."
+													class="btn btn-success btnUpdate" ng-if="showReturnButtons(1100)">Return Received By Warehouse</button>
+											</div>
+											<div>
+												<button type="submit" id="sendRowBtnUpdate" ng-click="updateItemDetails(1200)" data-loading="Updating..."
+													class="btn btn-danger btnUpdate" ng-if="showReturnButtons(1200)">Stock Loss</button>
+											</div>
+										</div>
+										<h4 class="modal-title">Items for request : {{ selectedSubkit.subkitNumber }}<br/><br/></h4>
+										<table id="itemsTbl" class="table table-bordered table-striped" data-ng-model="returnItemsList" datatable="ng" dt-options="dtOptions">
+											<thead>
+												<tr>
+													<th class="col-xs-1">Index</th>
+													<th class="col-xs-3">Item</th>
+													<th class="col-xs-1">Current Location</th>
+													<th class="col-xs-1">Barcode</th>
+													<th class="col-xs-1">Status</th>
+													<th class="col-xs-1">Select <input type="checkbox"  data-ng-model="selectAll.value"
+													ng-true-value="true" ng-false-value="false" data-ng-change="selectAllEvent(returnItemsList)"></th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr data-ng-repeat="item in returnItemsList track by $index">
+													<td>{{$index + 1}}</td>
+													<td>Code: {{ item.item.code }}<br/> Description: {{ item.item.description }}<br/></td>
+													<td><i class="fa fa-map-marker"></i> {{ item.currentLocation.name }}</td>
+													<td>{{item.barcode}}</td>
+													<td>{{item.statusText}}</td>
+													<td><input type="checkbox" data-ng-model="item.toUpdateStatus" data-ng-change="itemSelectEvent(returnItemsList)"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="scrapReturnTab">
+					<div class="row" id="scrapReturnRow">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body table-responsive">
+										<div class="row pull-right">
+										<!-- SCRAP_RECEIVED(10000, "Received"), 
+		SCRAP_CUSTOMER_KEPT(20000, "Customer Kept"),
+		SCRAP_LOST(30000, "Lost"), 
+		SCRAP_NOT_RECEIVED(40000, "Not Received"),
+		SCRAP_NOT_AVAILABLE(50000, "Not Available"),
+		SCRAP_NOT_EXPECTED(55000, "Scrap Not Expected"),
+		SCRAP_EXPECTED(60000, "Scrap Expected"); -->
+											<div>
+												<button type="submit" id="sendRowBtnUpdate" ng-click="updateItemDetails(10000)" data-loading="Updating..."
+													class="btn btn-success btnUpdate" ng-if="isReturnScrapExpected">Received</button>
+											</div>
+											<div>
+												<button type="submit" id="sendRowBtnUpdate" ng-click="updateItemDetails(20000)" data-loading="Updating..."
+													class="btn btn-success btnUpdate" ng-if="isReturnScrapExpected">Customer Kept</button>
+											</div>
+											<div>
+												<button type="submit" id="sendRowBtnUpdate" ng-click="updateItemDetails(40000)" data-loading="Updating..."
+													class="btn btn-success btnUpdate" ng-if="isReturnScrapExpected">Not Received</button>
+											</div>
+											<div>
+												<button type="submit" id="sendRowBtnUpdate" ng-click="updateItemDetails(30000)" data-loading="Updating..."
+													class="btn btn-danger btnUpdate" ng-if="isReturnScrapExpected">Lost</button>
+											</div>
+										</div>
+										<h4 class="modal-title">Items for request : {{ selectedSubkit.subkitNumber }}<br/><br/></h4>
+										<table id="itemsTbl" class="table table-bordered table-striped" data-ng-model="returnScrapItemsList" datatable="ng" dt-options="dtOptions">
+											<thead>
+												<tr>
+													<th class="col-xs-1">Index</th>
+													<th class="col-xs-3">Item</th>
+													<th class="col-xs-1">Current Location</th>
+													<th class="col-xs-1">Barcode</th>
+													<th class="col-xs-1">Scrap Return Status</th>
+													<th class="col-xs-1">Select <input type="checkbox"  data-ng-model="selectAll.value"
+													ng-true-value="true" ng-false-value="false" data-ng-change="selectAllEvent(returnScrapItemsList)"></th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr data-ng-repeat="item in returnScrapItemsList track by $index">
+													<td>{{$index + 1}}</td>
+													<td>Code: {{ item.item.code }}<br/> Description: {{ item.item.description }}<br/></td>
+													<td><i class="fa fa-map-marker"></i> {{ item.currentLocation.name }}</td>
+													<td>{{item.barcode}}</td>
+													<td>{{item.returnScrapStatusText}}</td>
+													<td><input type="checkbox" data-ng-model="item.toUpdateStatus" data-ng-change="itemSelectEvent(returnScrapItemsList)"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<div class="modal modal-wide" id="addOrderItemModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Add Item to Order</h4>
+				</div>
+				<div class="modal-body">
+					<form name="orderForm" class="form-horizontal"
+							data-ng-submit="saveOrder(orderForm.$valid)" novalidate>
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary  box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">Vendor Details</h2>
+										</div>
+										<div class="box-body">
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : orderForm.vendor.$invalid && orderForm.vendor.$touched }">
+												<label for="vendor" class="col-sm-2 control-label">Vendor</label>
+												<div class="col-sm-10">
+													<ui-select ng-model="purchaseOrder.vendor"
+														data-ng-required="true"
+														data-ng-disabled="itemsReceived || isOrderInvoiced"
+														name="vendor" data-ng-change="vendorSelectEvent()">
+													<ui-select-match placeholder="Select Vendor...">
+													<span ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+														repeat="vendor as vendor in (listOfVendors | filter: $select.search) track by vendor.id">
+													<span ng-bind="vendor.name"></span> </ui-select-choices> </ui-select>
+													<p
+														data-ng-show="orderForm.vendor.$invalid && orderForm.vendor.$touched"
+														class="help-block">Please select a vendor!</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="contactPerson" class="col-sm-2 control-label">Contact Person</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control" id="contactPerson"
+														data-ng-disabled="itemsReceived || isOrderInvoiced"
+														data-ng-model="purchaseOrder.contactPerson">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="contactNumber" class="col-sm-2 control-label">Contact #</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control" id="contactNumber"
+														data-ng-disabled="itemsReceived || isOrderInvoiced"
+														data-ng-model="purchaseOrder.contactNumber">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="vendorAddress" class="col-sm-2 control-label">Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3" id="vendorAddress"
+														data-ng-model="vendorAddress"
+														placeholder="Vendor address goes here..."
+														readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary  box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">Shipping Details</h2>
+										</div>
+										<div class="box-body">
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : orderForm.shippingWarehouse.$invalid && orderForm.shippingWarehouse.$touched }">
+												<label for="shippingLocation" class="col-sm-2 control-label">Ship
+													To</label>
+												<div class="col-sm-10">
+													<ui-select ng-model="purchaseOrder.shippingWarehouse"
+														data-ng-required="true" data-ng-disabled="itemsReceived"
+														name="shippingWarehouse"
+														data-ng-change="warehouseSelectEvent()"> <ui-select-match
+														placeholder="Select Warehouse..."> <span
+														ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+														repeat="warehouse as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+													<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+													<p
+														data-ng-show="orderForm.shippingWarehouse.$invalid && orderForm.shippingWarehouse.$touched"
+														class="help-block">Where to ship the items?</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="shippingAddress" class="col-sm-2 control-label">Shipping Address</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" rows="3"
+														id="shippingAddress" data-ng-model="shippingAddress"
+														placeholder="Enter Shipping goes here..."
+														readonly="readonly">
+													</textarea>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-4 col-md-4 col-xs-12">
+									<div class="box box-primary box-solid">
+										<div class="box-header with-border">
+											<h2 class="box-title">PO Details</h2>
+										</div>
+										<div class="box-body">
+											<div class="form-group">
+												<label for="orderNo" class="col-sm-3 control-label">PO
+													#</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="orderNo"
+														data-ng-model="purchaseOrder.orderNo"
+														placeholder="Autogenerated once the order is saved!"
+														readonly="readonly">
+												</div>
+											</div>
+											<div class="form-group"
+												data-ng-class="{ 'has-error' : orderForm.date.$invalid && orderForm.date.$touched }">
+												<label for="date" class="col-sm-3 control-label">Date</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control date" name="date"
+														data-ng-disabled="itemsReceived || isOrderInvoiced"
+														data-ng-required="true" data-ng-model="purchaseOrder.date"
+														placeholder="">
+													<p
+														data-ng-show="orderForm.date.$invalid && orderForm.date.$touched"
+														class="help-block">Where to ship the items?</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="status" class="col-sm-3 control-label">Kit Number</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="kitNumber"
+														data-ng-model="selectedRequest.kitNumber"
+														readonly="readonly"
+														placeholder="Enter a kit number for which the order is placed!">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="status" class="col-sm-3 control-label">VAT Tax</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="vatTax"
+														data-ng-model="purchaseOrder.vatTax"
+														placeholder="Enter a VAT tax">
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="status" class="col-sm-3 control-label">Status</label>
+												<div class="col-sm-9">
+													<input type="text" class="form-control" id="status"
+														data-ng-model="purchaseOrder.status"
+														placeholder="Autoupdated once the order is updated!"
+														readonly="readonly">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="box box-primary  box-solid">
+										<div class="box-header">
+											<h3 class="box-title">Order Items</h3>
+										</div>
+										<div class="box-body table-responsive">
+											<table class="table table-bordered table-condensed"
+												data-ng-model="purchaseOrder.items">
+												<thead>
+													<tr>
+														<th class="col-md-1">Index</th>
+														<th class="col-md-3">Code</th>
+														<th class="col-md-4">Description</th>
+														<th class="col-md-2">Barcode</th>
+														<th class="col-md-2">Unit Price</th>
+														<th class="col-md-2">Wholesale Price</th>
+														<th class="col-md-1"></th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr
+														ng-repeat="orderLineItem in purchaseOrder.items track by $index">
+														<td>{{$index + 1}}</td>
+														<td>{{orderLineItem.itemCode}}</td>
+														<td>{{orderLineItem.description}}</td>
+														<td>{{orderLineItem.barcode}} </td>
+														<td><input type="text" class="form-control" data-ng-model="orderLineItem.unitPrice"/></td>
+														<td><input type="text" class="form-control" data-ng-model="orderLineItem.wholesalePrice"/></td>
+														<td>
+														<a href="" data-ng-click="removeItem($index)"
+															data-ng-if="!itemsReceived">Remove</a></td>
+													</tr>
+												</tbody>
+											</table>
+
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+								</div>
+								<!-- /.col -->
+							</div>
+							<div class="row">
+								<div class="col-xs-12 col-lg-offset-5 col-md-offset-4">
+									<div class="btn-groupbtn-group-justified" role="group">
+										<div class="btn-group" role="group">
+											<button type="submit" class="btn btn-success update"
+												data-ng-disabled="orderForm.$invalid || purchaseOrder.items.length == 0"
+												data-ng-show="!isUpdateForm">Create</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+				</div>
+				<div class="modal-footer">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	var viewDetails = function (request) {
+	    angular.element('#kitController').scope().viewDetails(request);
+	}
+	$(".modal-wide").on("show.bs.modal", function() {
+		var height = $(window).height() - 200;
+		$(this).find(".modal-body").css("max-height", height);
+	});
+</script>
+<div class="clearfix"></div>

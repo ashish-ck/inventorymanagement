@@ -1,0 +1,193 @@
+<style>
+div[data-angular-treeview] {
+  /* prevent user selection */
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  /* default */
+  font-family: Tahoma;
+  font-size:13px;
+  color: #555;
+  text-decoration: none;
+}
+
+.tree li::after {
+    border-top: none;
+    height: 0px;
+    top: 0px;
+    width :0px;
+}
+
+div[data-tree-model] ul {
+  margin: 0;
+  padding: 0;
+  list-style: none; 
+  border: none;
+  overflow: hidden;
+}
+
+div[data-tree-model] li {
+  position: relative;
+  padding: 3px 0 0 20px;
+  line-height: 20px;
+}
+
+div[data-tree-model] li .expanded {
+  padding: 1px 10px;
+  background-image: url("/resources/img/folder.png");
+  background-repeat: no-repeat;
+}
+
+div[data-tree-model] li .collapsed {
+  padding: 1px 10px;
+  background-image: url("/resources/img/folder-closed.png");
+  background-repeat: no-repeat;
+}
+
+div[data-tree-model] li .normal {
+  padding: 1px 10px;
+  background-image: url("/resources/img/file.png");
+  background-repeat: no-repeat;
+}
+
+div[data-tree-model] li i, div[data-tree-model] li span {
+  cursor: pointer;
+}
+
+div[data-tree-model] li .selected {
+  background-color: #aaddff;
+  font-weight: bold;
+  padding: 1px 5px;
+}
+</style>
+<script src="/resources/js/FileSaver.js" type="text/javascript"></script>
+<div data-ng-controller="itemTreeController"
+	data-ng-init="fetchAllWarehouse()" id="itemTreeController">
+	
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i>Storage Locations
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li class="active">Items Tree</li>
+		</ol>
+	</section>
+
+	<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-6" style="margin-top: -1em;">
+				<h3>Warehouses</h3>
+			</div>
+			<div class="col-xs-6 " style="margin-top: -1em;" >
+			<button type="button"  class="btn btn-success"
+						data-ng-if="isAllWarehousesSelected" data-ng-click="openAddWarehouseModal()">Add Warehouse</button>
+					<button type="button"  class="btn btn-success"
+						data-ng-if="isWarehouseSelected" data-ng-click="openAddShelfModal()">Add Shelf</button>
+					<button type="button"  class="btn btn-success"
+						data-ng-if="isWarehouseSelected" data-ng-click="editWarehouse(selectedNode)">Edit Warehouse</button>
+					<button type="button"  class="btn btn-success"
+						data-ng-if="isShelfSelected" data-ng-click="openAddRackModal()">Add Rack</button>
+				    <button type="button"  class="btn btn-success"
+						data-ng-if="isRackSelected" data-ng-click="openAddCrateModal()">Add Crate</button>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-4">
+				<div class="box box-primary tree"
+					style="height: 100%; overflow: auto;">
+					<div class="box-header">
+						<h3 class="box-title">Shelves / Racks / Crates</h3>
+					</div>
+					<div class="box-body">
+						 <div
+						      data-angular-treeview="true"
+						      data-tree-model="tree"
+						      data-node-id="details.id"
+						      data-node-label="details.name"
+						      data-node-children="children" >
+					    </div>
+				
+						
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-8">
+				<div class="box box-primary">
+					<div class="box-header" data-ng-show="selectedCategory.id != 0">
+						<h3 class="box-title">Name : {{currentNode.details.name}} </h3>
+					</div>
+					<div class="box-header" data-ng-show="selectedCategory.id == 0">
+						<h3 class="box-title">Please select a location/Warehouse to list the items</h3>
+					</div>					
+					<!-- /.box-header -->
+					<div class="box-body table-responsive">
+					Show Items that do not have storage location
+					<input type="checkbox" data-ng-model="selectUnlocated"
+						ng-true-value="true" ng-false-value="false">
+						<button ng-click="exportData()" class="btn btn-success btnUpdate">Export</button>
+						<div class="box-body">
+							<div class="row" style="vertical-align: text-bottom;">
+								<div class="col-md-5 col-xs-12 form-group"
+									data-ng-show="attribute">
+									<label for="defaultWarehouse"
+										class="col-sm-2 control-label">Value</label>
+									<div class="col-sm-10">
+										<ui-select multiple name="attributeValue" sortable="true"
+											close-on-select="false"
+											data-ng-model="$parent.attributeValue" theme="bootstrap">
+										<ui-select-match placeholder="Add attribute values...">{{$item}}</ui-select-match>
+										<ui-select-choices
+											repeat="value in listOfAttributeValues | filter:$select.search">
+										{{value}} </ui-select-choices> </ui-select>
+									</div>
+								</div>
+								<div class="col-md-2 col-xs-12 form-group"
+									data-ng-show="attribute">
+									<button type="button" class="btn btn-default"
+										data-ng-disabled="attributeValue.length == 0"
+										data-ng-click="addAttributeToList()">Add</button>
+									<button type="button" class="btn btn-default"
+										data-ng-click="resetAttributeForm()">Clear</button>
+								</div>
+							</div>
+						</div>
+	                   <table id="openRequestsTbl"
+						class="table table-bordered table-striped" data-dt-instance="openKitTblInstance"
+						datatable="" dt-options="openKitOptions" data-ng-model="listOfItems" 
+						dt-columns="itemsColumns"></table>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+		</div>
+	</section>
+	<div data-ng-include="'/resources/app/inventory/views/addUpdateWarehouse.html'"></div>
+	<div data-ng-include="'/resources/app/inventory/views/addUpdateShelf.html'"></div>
+	<div data-ng-include="'/resources/app/inventory/views/addUpdateRack.html'"></div>
+	<div data-ng-include="'/resources/app/inventory/views/addUpdateCrate.html'"></div>
+	<div data-ng-include="'/resources/app/inventory/views/addUpdateWarehouseItem.html'"></div>
+</div>
+<div class="clearfix"></div>
+<script type="text/javascript">
+	/* function callMe(element) {
+		angular.element(document.getElementById('categoriesController'))
+				.scope().treeClickEvent($(element).attr('id'));
+	} */
+	$(document).ready(function() {
+		$("#itemsTbl").DataTable();
+	});
+	$('#itemsTbl').on( 'draw.dt', function ( e, settings, len ) {
+		angular.element('#itemTreeController').scope().exportItems(angular.element('#itemTreeController').scope().listOfItems);
+	} );
+	var updateItemModel = function(item){
+		angular.element('#itemTreeController').scope().updateItemModel(item);
+	}
+</script>

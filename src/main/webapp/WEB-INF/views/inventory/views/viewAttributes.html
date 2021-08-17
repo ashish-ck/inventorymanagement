@@ -1,0 +1,75 @@
+<div data-ng-controller="attributesController">
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-columns"></i> Item Attributes
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i class="fa fa-dashboard"></i> Home</a></li>
+			<li><a class="active">Attributes</a></li>
+		</ol>
+	</section>
+
+		<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-6" style="margin-top: -1em;">
+				<h3>View all Attributes</h3>
+			</div>
+			<div class="col-xs-6">
+				<!-- Single button -->
+				<div class="btn-group pull-right">
+					<button type="button" class="btn btn-primary dropdown-toggle"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="" data-ng-click="openCreateAttributeModal()">Create
+								Attribute</a></li>
+						<li><a href="" data-ng-click="appRouting('attributes')">View All Attributes</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /.col -->
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box box-primary">
+					<!-- /.box-header -->
+					<div class="box-body table-responsive">
+						<table id="attributesTbl" class="table table-bordered table-striped"
+							data-ng-init="fetchAllAttributes()" data-ng-model="listOfAttributes"
+							datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Possible Values</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="attribute in listOfAttributes track by $index">
+									<td>{{ attribute.name }}</td>
+									<td>{{ attribute.possibleValues.length }}</td>
+									<td><a href="" data-ng-click="editAttributeModal(attribute)"> View Details </a></td>
+								</tr>
+						</table>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- /.col -->
+		</div>
+		<!-- /.row -->		
+	</section>
+	<!-- /.content -->
+	<div data-ng-include="'/resources/app/inventory/views/addUpdateAttribute.html'"></div>
+</div>
+
+
+<div class="clearfix"></div>
+<script>
+	$(document).ready(function () {
+		$("#attributesTbl").DataTable();
+	});
+</script>

@@ -1,0 +1,85 @@
+<div>
+	<div class="modal" id="createShelfModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Create Shelf</h4>
+				</div>
+				<form name="shelfForm"
+					data-ng-submit="createNewShelf(shelfForm.$valid)"
+					novalidate>
+					<div class="modal-body">
+						<div class="box-body">
+							<div class="row">
+								<div class="col-xs-6 form-group"
+									data-ng-class="{ 'has-error' : shelfForm.name.$invalid && shelfForm.name.$touched }">
+									<label for="shelfname">Name</label> <input type="text"
+										class="form-control" name="shelfname"
+										data-ng-model="shelf.name" placeholder="Name"
+										data-ng-required="true">
+									<p
+										data-ng-show="shelfForm.name.$invalid && shelfForm.name.$touched"
+										class="help-block">Required.</p>
+								</div>
+								<div class="col-xs-6 form-group"
+									data-ng-class="{ 'has-error' : shelfForm.state.$invalid && shelfForm.description.$touched }">
+									<label for="shelfdescription">Description</label> <input type="text"
+										class="form-control" name="shelfdescription"
+										data-ng-model="shelf.description" placeholder="Description"
+										data-ng-required="true">
+									<p
+										data-ng-show="shelfForm.description.$invalid && shelfForm.description.$touched"
+										class="help-block">Required.</p>
+								</div>
+								<!-- div class="col-xs-6 form group">
+									<ui-select ng-model="$parent.location.warehouse"
+										name="selectedWarehouse"> <ui-select-match
+										placeholder="Select a warehouse"> <span
+										ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+										repeat="warehouse.name as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+									<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+								</div>
+							</div>
+							 <div class="row">
+								<div class="col-xs-6 form-group"
+									data-ng-if="!warehouse.selectedWarehouse"
+									data-ng-class="{ 'has-error' : crateForm.selectedWarehouseCode.$invalid && crateForm.selectedWarehouseCode.$touched }">
+									<label for="selectedWarehouse">Warehouse</label>
+									<ui-select ng-model="$parent.warehouse.selectedWarehouseCode"
+										name="selectedWarehouse" data-ng-required="true"> <ui-select-match
+										placeholder="Select a warehouse"> <span
+										ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+										repeat="warehouse.code as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+									<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+									<p
+										data-ng-show="crateForm.selectedWarehouseCode.$invalid && crateForm.selectedWarehouseCode.$touched"
+										class="help-block"></p>
+								</div>
+							</div> -->
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger pull-left" id="btnUpdate"
+							data-dismiss="modal" id="close">Close</button>
+						<button type="submit" class="btn btn-success"
+							data-ng-disabled="shelfForm.$invalid">Save changes</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+</div>
+
+<div class="clearfix"></div>
+<script type="text/javascript">
+	$(document).ready(function() {
+	});
+</script>

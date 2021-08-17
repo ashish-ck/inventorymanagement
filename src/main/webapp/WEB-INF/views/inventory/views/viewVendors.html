@@ -1,0 +1,82 @@
+<div data-ng-controller="vendorsController">
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cubes"></i> Vendor Management
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i class="fa fa-dashboard"></i> Home</a></li>
+			<li><a class="active">Vendors</a></li>
+		</ol>
+	</section>
+	
+		<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-6" style="margin-top: -1em;">
+				<h3>View Vendors</h3>
+			</div>
+			<div class="col-xs-6">
+				<!-- Single button -->
+				<div class="btn-group pull-right">
+					<button type="button" class="btn btn-primary dropdown-toggle"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="" data-ng-click="openCreateVendorModal()">Create Vendor</a></li>
+						<li><a href="" data-ng-click="appRouting('vendors')">View All Vendors</a></li>
+						<li><a href="" data-ng-click="appRouting('vendors/search')">Search Vendors</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /.col -->
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box box-primary">
+<!-- 					<div class="box-header"> -->
+<!-- 						<h3 class="box-title">List Of All Warehouses</h3> -->
+<!-- 					</div> -->
+					<!-- /.box-header -->
+					<div class="box-body table-responsive">
+						<table id="vendorsTbl" class="table table-bordered table-striped"
+							data-ng-init="fetchAllVendors()" data-ng-model="listOfVendors"
+							datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Location</th>
+									<th>City</th>
+									<th>Contact #</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="vendor in listOfVendors track by $index">
+									<td>{{ vendor.name }}</td>
+									<td>{{ vendor.location }}</td>
+									<td>{{ vendor.city }} - {{ vendor.pincode }} </td>
+									<td>{{ vendor.contactNo }}</td>
+									<td><a href="" data-ng-click="editVendor(vendor)"> View Details </a></td>
+								</tr>
+						</table>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- /.col -->
+		</div>
+		<!-- /.row -->		
+	</section>
+	<div data-ng-include="'/resources/app/inventory/views/addUpdateVendor.html'"></div>
+</div>
+
+
+
+<div class="clearfix"></div>
+<script>
+	$(document).ready(function () {
+		$("#vendorsTbl").DataTable();
+	});
+</script>

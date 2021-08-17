@@ -1,0 +1,177 @@
+<div>
+	<div class="modal" id="createWarehouseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Create Warehouse</h4>
+				</div>
+				<form name="warehouseForm"
+					data-ng-submit="createNewWarehouse(warehouseForm.$valid)"
+					novalidate>
+					<div class="modal-body">
+						<div class="box-body">
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="form-group"
+										data-ng-class="{ 'has-error' : warehouseForm.name.$invalid && warehouseForm.name.$touched }">
+										<label for="name">Name</label> <input type="text"
+											class="form-control" name="name"
+											data-ng-model="warehouse.name"
+											placeholder="Enter warehouse name here..."
+											data-ng-required="true">
+										<p
+											data-ng-show="warehouseForm.name.$invalid && warehouseForm.name.$touched"
+											class="help-block">Warehouse name is required.</p>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-6">
+									<div class="form-group"
+										data-ng-class="{ 'has-error' : warehouseForm.code.$invalid && warehouseForm.code.$touched }">
+										<label for="code">Code</label> <input type="text"
+											class="form-control" name="code"
+											data-ng-model="warehouse.code"
+											placeholder="Give a code to the warehouse..."
+											data-ng-required="true">
+										<p
+											data-ng-show="warehouseForm.code.$invalid && warehouseForm.code.$touched"
+											class="help-block">Warehouse Code is required.</p>
+									</div>
+								</div>
+								<div class="col-xs-6 form-group"
+									data-ng-class="{ 'has-error' : warehouseForm.addressLine1.$invalid && warehouseForm.addressLine1.$touched }">
+									<label for="addressLine1">Address Line 1</label> <input type="text"
+										class="form-control" name="addressLine1"
+										data-ng-model="warehouse.addressLine1"
+										placeholder="Building name, block #, Lane..."
+										data-ng-required="true">
+									<p
+										data-ng-show="warehouseForm.addressLine1.$invalid && warehouseForm.addressLine1.$touched"
+										class="help-block">Required.</p>
+								</div>
+							</div>
+
+							<div class="row">
+
+								<div class="col-xs-6 form-group"
+									data-ng-class="{ 'has-error' : warehouseForm.addressLine2.$invalid && warehouseForm.addressLine2.$touched }">
+									<label for="addressLine2">Address Line 2</label> <input type="text"
+										class="form-control" name="addressLine2"
+										data-ng-model="warehouse.addressLine2"
+										placeholder="Road, Street, Society..." data-ng-required="true">
+									<p
+										data-ng-show="warehouseForm.addressLine2.$invalid && warehouseForm.addressLine2.$touched"
+										class="help-block">Required.</p>
+								</div>
+								<div class="col-xs-6 form-group"
+									data-ng-class="{ 'has-error' : warehouseForm.location.$invalid && warehouseForm.location.$touched }">
+									<label for="location">Location</label> <input type="text"
+										class="form-control" name="location"
+										data-ng-model="warehouse.location"
+										placeholder="Locality, near by landmark..."
+										data-ng-required="true">
+									<p
+										data-ng-show="warehouseForm.location.$invalid && warehouseForm.location.$touched"
+										class="help-block">Required.</p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-6 form-group"
+									data-ng-class="{ 'has-error' : warehouseForm.city.$invalid && warehouseForm.city.$touched }">
+									<label for="city">City</label> <input type="text"
+										class="form-control" name="city"
+										data-ng-model="warehouse.city" placeholder="City"
+										data-ng-required="true">
+									<p
+										data-ng-show="warehouseForm.city.$invalid && warehouseForm.city.$touched"
+										class="help-block">Required.</p>
+								</div>
+								<div class="col-xs-6 form-group"
+									data-ng-class="{ 'has-error' : warehouseForm.state.$invalid && warehouseForm.state.$touched }">
+									<label for="state">State</label> <input type="text"
+										class="form-control" name="state"
+										data-ng-model="warehouse.state" placeholder="State"
+										data-ng-required="true">
+									<p
+										data-ng-show="warehouseForm.state.$invalid && warehouseForm.state.$touched"
+										class="help-block">Required.</p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-6 form-group"
+									data-ng-class="{ 'has-error' : warehouseForm.country.$invalid && warehouseForm.country.$touched }">
+									<label for="country">Country</label> <input type="text"
+										class="form-control" name="country"
+										data-ng-model="warehouse.country" placeholder="Country"
+										data-ng-required="true">
+									<p
+										data-ng-show="warehouseForm.country.$invalid && warehouseForm.country.$touched"
+										class="help-block">Required.</p>
+								</div>
+								<div class="col-xs-6 form-group"
+									data-ng-class="{ 'has-error' : warehouseForm.pincode.$invalid && warehouseForm.pincode.$touched }">
+									<label for="pincode">Pincode</label> <input type="text"
+										class="form-control" name="pincode"
+										data-ng-model="warehouse.pincode" placeholder="Pincode"
+										data-ng-required="true">
+									<p
+										data-ng-show="warehouseForm.pincode.$invalid && warehouseForm.pincode.$touched"
+										class="help-block">Required.</p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-6 form-group">
+									<label for="motherWarehouse">Is Mother Warehouse?</label> <input
+										type="checkbox" name="motherWarehouse"
+										data-ng-model="warehouse.motherWarehouse">
+								</div>
+								<div class="col-xs-6 form-group"
+									data-ng-if="!warehouse.motherWarehouse"
+									data-ng-class="{ 'has-error' : warehouseForm.motherWarehouseCode.$invalid && warehouseForm.motherWarehouseCode.$touched }">
+									<label for="motherWarehouse">Mother Warehouse</label>
+
+									<ui-select ng-model="warehouse.motherWarehouseCode"
+										name="motherWarehouse" data-ng-required="true"> 
+									<ui-select-match
+										placeholder="Select a mother warehouse"> <span
+										ng-bind="$select.selected.name"></span> 
+									</ui-select-match> 
+									<ui-select-choices
+										repeat="warehouse.code as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+									   <span ng-bind="warehouse.name"></span> 
+									</ui-select-choices> 
+									</ui-select>
+									<p
+										data-ng-show="warehouseForm.motherWarehouseCode.$invalid && warehouseForm.motherWarehouseCode.$touched"
+										class="help-block">If not a mother warehouse, each
+										warehouse must be associated to a mother warehouse!</p>
+								</div>
+							</div>
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger pull-left" id="btnUpdate"
+							data-dismiss="modal" id="close">Close</button>
+						<button type="submit" class="btn btn-success"
+							data-ng-disabled="warehouseForm.$invalid">Save changes</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+</div>
+
+<div class="clearfix"></div>
+<script type="text/javascript">
+	$(document).ready(function() {
+	});
+</script>

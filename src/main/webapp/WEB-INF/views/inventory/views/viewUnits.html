@@ -1,0 +1,90 @@
+<div data-ng-controller="unitsController">
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cubes"></i> Unit Of Measurements
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li><a class="active">Units</a></li>
+		</ol>
+	</section>
+
+	<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-6" style="margin-top: -1em;">
+				<h3>View Unit of Measurements</h3>
+			</div>
+			<div class="col-xs-6">
+				<!-- Single button -->
+				<div class="btn-group pull-right">
+					<button type="button" class="btn btn-primary dropdown-toggle"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="" data-ng-click="openCreateUnitModal()">Create
+								Unit</a></li>
+						<li><a href="" data-ng-click="appRouting('units')">View
+								All Units</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /.col -->
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box box-primary">
+					<!-- 					<div class="box-header"> -->
+					<!-- 						<h3 class="box-title">List Of All Warehouses</h3> -->
+					<!-- 					</div> -->
+					<!-- /.box-header -->
+					<div class="box-body table-responsive">
+						<table id="unitsTbl" class="table table-bordered table-striped"
+							data-ng-init="fetchAllUnits()" data-ng-model="listOfUnits"
+							datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Description</th>
+									<th>Notation</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="unit in listOfUnits track by $index">
+									<td>{{ unit.name }}</td>
+									<td>{{ unit.description }}</td>
+									<td>{{ unit.notation }}</td>
+									<td><a href="" data-ng-click="editUnit(unit)"> View Details </a></td>
+								</tr>
+								<!-- 							<tfoot> -->
+								<!-- 								<tr> -->
+								<!-- 									<th>Item Code</th> -->
+								<!-- 									<th>Category</th> -->
+								<!-- 									<th>Quantity In Hand</th> -->
+								<!-- 									<th>Price</th> -->
+								<!-- 								</tr> -->
+								<!-- 							</tfoot> -->
+						</table>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- /.col -->
+		</div>
+		<!-- /.row -->
+	</section>
+	<!-- /.content -->
+<div data-ng-include="'/resources/app/inventory/views/addUpdateUnit.html'"></div>
+</div>
+
+
+<div class="clearfix"></div>
+<script>
+	$(document).ready(function () {
+		$("#unitsTbl").DataTable();
+	});
+</script>

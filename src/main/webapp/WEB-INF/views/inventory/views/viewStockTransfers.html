@@ -1,0 +1,97 @@
+<div data-ng-controller="stockTransfersController" id="stockTransfersController"
+	data-ng-init="fetchInitData()">
+
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i> Transfer Orders
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li><a class="active">View All Transfers</a></li>
+		</ol>
+	</section>
+
+	<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-6" style="margin-top: -1em;">
+				<h3>View Transfer Orders</h3>
+			</div>
+			<div class="col-xs-6">
+				<!-- Single button -->
+				<div class="btn-group pull-right">
+					<button type="button" class="btn btn-primary dropdown-toggle"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+							<li><a href=""
+								data-ng-click="appRouting('inventory/transfers/create')">Create
+									Transfer Order</a></li>
+							<li><a href=""
+								data-ng-click="appRouting('inventory/transfers/view')">View
+									Transfer Orders</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /.col -->
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box box-primary">
+					<!-- /.box-header -->
+					<div class="box-header" >
+						<h6 class="box-title">
+							List of All Orders
+						</h6>
+					</div>
+					<div class="box-body table-responsive">
+						<table id="ordersTbl" class="table table-bordered table-striped"
+							style="width: 100%;" datatable=""
+							dt-options="orderTblOptions"
+							dt-columns="orderColumns"></table>
+						<!-- <table id="ordersTbl" class="table table-bordered table-striped"
+							data-ng-model="listOfOrders" datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-md-1">Order#</th>
+									<th class="col-md-1">Date (yyyy-mm-dd)</th>
+									<th class="col-md-2">Status</th>
+									<th class="col-md-3">From Warehouse</th>
+									<th class="col-md-3">To Warehouse</th>
+									<th class="col-md-2"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="order in listOfOrders track by $index">
+									<td class="col-md-1">{{ order.orderNumber }}</td>
+									<td class="col-md-2">{{ order.orderDate  | date: 'yyyy-MM-dd' }}</td>
+									<td class="col-md-2">{{ order.statusText }}</td>
+									<td class="col-md-2">{{ order.fromWarehouse.name }}</td>
+									<td class="col-md-2">{{ order.toWarehouse.name }}</td>
+									<td class="col-md-2"><a href="" data-ng-click="appRouting(getPath(order.orderNumber))"> View Details </a></td>
+								</tr>
+						</table> -->
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- /.col -->
+		</div>
+		<!-- /.row -->
+
+
+
+	</section>
+
+</div>
+<div class="clearfix"></div>
+<script type="text/javascript">
+
+var viewDetails = function (orderNo) {
+    angular.element('#stockTransfersController').scope().viewDetails(orderNo);
+}
+
+</script>

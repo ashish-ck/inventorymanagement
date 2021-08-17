@@ -1,0 +1,61 @@
+<div class="modal" id="createUnitModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">Create Unit of Measurement</h4>
+			</div>
+			<form name="unitForm" data-ng-submit="createNewUnit(unitForm.$valid)"
+				novalidate>
+				<div class="modal-body">
+					<div class="box-body">
+						<div class="row">
+							<div class="col-xs-12 form-group"
+							 data-ng-class="{ 'has-error' : unitForm.name.$invalid && unitForm.name.$touched }">
+								<label for="name">Name</label> <input type="text"
+									class="form-control" name="name" data-ng-model="unit.name"
+									placeholder="Enter unit name here..." data-ng-required="true">
+								<p data-ng-show="unitForm.name.$invalid && unitForm.name.$touched"
+									class="help-block">Unit name is required.</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12 form-group"
+							 data-ng-class="{ 'has-error' : unitForm.notation.$invalid && unitForm.notation.$touched }">
+								<label for="notation">Notation</label> <input type="text"
+									class="form-control" name="notation"
+									data-ng-model="unit.notation"
+									placeholder="ex: KGS, NOS, MT, CM etc..." data-ng-required="true">
+								<p data-ng-show="unitForm.notation.$invalid && unitForm.notation.$touched"
+									class="help-block">Unit notation is required.</p>									
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<label for="description">Description</label>
+								<textarea rows="3" class="form-control" id="description"
+									data-ng-model="unit.description"
+									placeholder="ex: What is it measuring? What kind of items will be measured by this unit? etc.."> 
+								</textarea>
+							</div>
+						</div>
+					</div>
+					<!-- /.box-body -->
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger pull-left"
+						data-dismiss="modal" id="close">Close</button>
+					<button type="submit" id="submit" class="btn btn-success"
+						data-ng-disabled="unitForm.$invalid">Save changes</button>
+				</div>
+			</form>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

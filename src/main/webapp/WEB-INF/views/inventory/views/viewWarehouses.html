@@ -1,0 +1,88 @@
+<div data-ng-controller="warehousesController">
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cubes"></i> Warehouses
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i class="fa fa-dashboard"></i> Home</a></li>
+			<li><a class="active">Warehouses</a></li>
+		</ol>
+	</section>
+	
+		<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-6" style="margin-top: -1em;">
+				<h3>View Warehouses</h3>
+			</div>
+			<div class="col-xs-6">
+				<!-- Single button -->
+				<div class="btn-group pull-right">
+					<button type="button" class="btn btn-primary dropdown-toggle"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="" data-ng-click="openCreateWarehouseModal()">Create
+								Warehouse</a></li>
+						<li><a href="" data-ng-click="appRouting('warehouses')">View All Warehouses</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /.col -->
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box box-primary">
+<!-- 					<div class="box-header"> -->
+<!-- 						<h3 class="box-title">List Of All Warehouses</h3> -->
+<!-- 					</div> -->
+					<!-- /.box-header -->
+					<div class="box-body table-responsive">
+						<table id="warehouseTbl" class="table table-bordered table-striped"
+							data-ng-init="fetchAllWarehouses()" data-ng-model="listOfWarehouses"
+							datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Location</th>
+									<th>City</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="warehouse in listOfWarehouses track by $index">
+									<td>{{ warehouse.name }}</td>
+									<td>{{ warehouse.location }}</td>
+									<td>{{ warehouse.city }} - {{ warehouse.pincode }} </td>
+									<td><a href="" data-ng-click="editWarehouse(warehouse)"> View Details </a></td>
+								</tr>
+<!-- 							<tfoot> -->
+<!-- 								<tr> -->
+<!-- 									<th>Item Code</th> -->
+<!-- 									<th>Category</th> -->
+<!-- 									<th>Quantity In Hand</th> -->
+<!-- 									<th>Price</th> -->
+<!-- 								</tr> -->
+<!-- 							</tfoot> -->
+						</table>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- /.col -->
+		</div>
+		<!-- /.row -->		
+	</section>
+	<div data-ng-include="'/resources/app/inventory/views/addUpdateWarehouse.html'"></div>
+</div>
+
+
+
+<div class="clearfix"></div>
+<script>
+	$(document).ready(function () {
+		$("#warehouseTbl").DataTable();
+	});
+</script>

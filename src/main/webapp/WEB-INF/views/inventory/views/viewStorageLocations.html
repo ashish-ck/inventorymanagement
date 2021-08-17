@@ -1,0 +1,167 @@
+<style type="text/css">
+.modal.modal-wide .modal-dialog {
+	width: 90%;
+}
+.modal-wide .modal-body {
+	overflow-y: auto;
+}
+.modal .modal-body p {
+	margin-bottom: 900px
+}
+</style>
+<div data-ng-controller="storageLocationsController" id="storageLocationsController" data-ng-init="fetchInitData()">
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i> Kit Requests
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li><a class="active">Kit Requests</a></li>
+		</ol>
+	</section>
+	<section class="invoice">
+		<div class="row">
+			<div class="nav-tabs-custom">
+				<div class="tab-content">
+					<div class="tab-pane active" id="requestsTab">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body table-responsive">
+										<table id="openRequestsTbl"
+											class="table table-bordered table-striped" data-dt-instance="openKitTblInstance"
+											style="width: 100%;" datatable="" dt-options="openKitOptions"
+											dt-columns="itemsColumns"></table>
+									</div>
+									<!-- /.box-body -->
+								</div>
+								<!-- /.box -->
+							</div>
+							<!-- /.col -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<div class="modal modal-wide" id="requestItemsModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Items for request : {{
+						selectedRequest.kitNumber }}</h4>
+				</div>
+				<div class="modal-body" style="padding: 1em;">
+					<div class="box-body table-responsive">
+						<table id="itemsTbl" class="table table-bordered table-striped"
+							data-ng-model="selectedRequest.items" datatable="ng"
+							dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-xs-3">Item</th>
+									<th class="col-xs-1">Current Location</th>
+									<th class="col-xs-1">Qty Requested</th>
+									<th class="col-xs-1">Qty Delivered</th>
+									<th class="col-xs-1">Qty Restock</th>
+									<th class="col-xs-1">Qty Returned</th>
+									<th class="col-xs-1">Barcode</th>
+									<th class="col-xs-1">Serial Number</th>
+									<th class="col-xs-1">Status</th>
+									<th class="col-xs-1"><input type="checkbox"
+										data-ng-model="selectAll"
+										data-ng-change="selectAllEvent(selectAll)"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="item in selectedRequest.items track by $index">
+									<td>Code: {{ item.item.code }}<br /> Description: {{
+										item.item.description }}<br /> Vendor Alias: {{
+										item.item.vendorAlias }}<br />
+									</td>
+									<td>{{ item.currentLocation.name }}</td>
+									<td>{{ item.quantity }}</td>
+									<td><input type="text" class="form-control"
+										data-ng-model="item.quantityDelivered"
+										data-ng-disabled="item.currentStatus >= 6 || selectedRequest.status >= 7 || item.currentStatus == 4"
+										data-ng-change="itemQuantityDeliveredEvent(item)" /></td>
+
+									<td>{{ item.quantityReturnExpected }}</td>
+									<td><input type="text" class="form-control"
+										data-ng-model="item.returnQuantity"
+										data-ng-disabled="item.quantityReturnExpected == 0 || item.currentStatus != 8" /></td>
+									<td><input type="text" class="form-control" data-ng-blur="checkIfItemBarcodeValid(item.item.code, item.barcode)"
+										data-ng-model="item.barcode"
+										data-ng-disabled="item.currentStatus != 1 || selectedRequest.status >= 7" /></td>
+									<td><input type="text" class="form-control"
+										data-ng-model="item.serialNumber" data-ng-blur="checkIfItemBarcodeValid(item.item.code, item.serialNumber)"
+										data-ng-if="item.item.serialized"
+										data-ng-disabled="item.currentStatus != 1 && item.item.serialized" /></td>
+									<td>{{item.statusText}}</td>
+									<td><input type="checkbox"
+										data-ng-if="item.currentStatus != 10 && item.currentStatus != 4 && item.currentStatus != 7 && selectedRequest.status != 10"
+										data-ng-model="item.toUpdateStatus"
+										data-ng-change="itemSelectEvent(item)"></td>
+								</tr>
+						</table>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<div class="modal-footer">
+					<div class="col-md-4 col-xs-12">
+						<button type="button" class="btn btn-danger pull-right"
+							data-dismiss="modal" id="close">Close</button>
+					</div>
+					<div class="col-md-4 col-xs-12"
+						data-ng-if="selectedRequest.status != 10">
+						<ui-select ng-model="$parent.$parent.selectedStatus"
+							data-ng-change="statusSelectEvent($parent.$parent.selectedStatus)"
+							name="selectedStatus"
+							data-ng-disabled="selectedItemsCount == 0 || listOfStatuses.length == 0"
+							data-ng-required="true"> <ui-select-match
+							placeholder="Select a status to update"> <span
+							ng-bind="$select.selected.key"></span> </ui-select-match> <ui-select-choices
+							repeat="status.value as status in (listOfStatuses | filter: $select.search) track by $index">
+						<span ng-bind="status.key"></span> </ui-select-choices> </ui-select>
+						<ui-select ng-model="toWarehouse"
+							data-ng-change="warehouseSelectEvent(toWarehouse)"
+							data-ng-if="selectedStatus == -99"
+							data-ng-required="true"> <ui-select-match
+							placeholder="Transfer To?"> <span
+							ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+							repeat="warehouse.name as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+						<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+					</div>
+					<div class="col-md-4 col-xs-12"
+						data-ng-if="selectedRequest.status != 10">
+						<button type="submit" id="btnUpdate"
+							data-ng-click="updateItemDetails()" data-loading="Updating..."
+							class="btn btn-success pull-left btnUpdate"
+							data-ng-disabled="!selectedStatus || selectedItemsCount == 0">Save
+							changes</button>
+					</div>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+</div>
+<div class="clearfix"></div>
+<script type="text/javascript">
+var viewDetails = function (request) {
+    angular.element('#storageLocationsController').scope().viewDetails(request);
+}
+var markStatus = function (request, status) {
+    angular.element('#storageLocationsController').scope().markStatus(request, status);
+}
+$(".modal-wide").on("show.bs.modal", function() {
+	var height = $(window).height() - 200;
+	$(this).find(".modal-body").css("max-height", height);
+});
+</script>

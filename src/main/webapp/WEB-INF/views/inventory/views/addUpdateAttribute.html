@@ -1,0 +1,75 @@
+<div 
+	data-ng-init="fetchInitData()">
+
+	<div class="modal" id="createAttributeModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Create Attribute</h4>
+				</div>
+				<form name="attributeForm"
+					data-ng-submit="createNewAttribute(attributeForm.$valid)"
+					novalidate>
+					<div class="modal-body">
+						<div class="box-body">
+							<div class="row">
+								<div class="col-xs-12 form-group" data-ng-class="{ 'has-error' : attributeForm.name.$invalid && attributeForm.name.$touched }">
+									<label for="name">Name</label> <input type="text"
+										class="form-control" name="name" data-ng-model="currentAttribute.name"
+										placeholder="Enter attribute name here..." data-ng-required="true">
+										<p data-ng-show="attributeForm.name.$invalid && attributeForm.name.$touched"
+											class="help-block">Please enter a name!</p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12 form-group" data-ng-class="{ 'has-error' : attributeForm.unit.$invalid && attributeForm.unit.$touched }">
+									<label for="unit">Unit</label>
+									<ui-select ng-model="$parent.currentAttribute.unit" name="unit" data-ng-required="true"
+										data-ng-required="true"> <ui-select-match>
+									<span ng-bind="$select.selected.notation"></span> </ui-select-match> <ui-select-choices
+										repeat="unit.notation as unit in (listOfUnits | filter: $select.search)">
+									<span ng-bind="unit.notation"></span> </ui-select-choices> </ui-select>
+									<p data-ng-show="attributeForm.unit.$invalid && attributeForm.unit.$touched"
+										class="help-block">Select a unit!</p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<label for="possibleValues">Possible Values</label>
+									<ui-select multiple tagging
+										tagging-label="(custom 'new' label)"
+										ng-model="$parent.currentAttribute.possibleValues" theme="bootstrap"
+										sortable="true" title="Attribute Values"> <ui-select-match
+										placeholder="Add Values...">{{$item}}</ui-select-match> <ui-select-choices
+										repeat="value in possibleValues | filter:$select.search">
+									{{value}} </ui-select-choices> </ui-select>
+								</div>
+							</div>
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger pull-left updating"
+							data-dismiss="modal" id="close">Close</button>
+						<button type="submit" id="submit" class="btn btn-success updating"
+							data-ng-disabled="attributeForm.$invalid || currentAttribute.possibleValues.length == 0">Save changes</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+</div>
+
+<div class="clearfix"></div>
+<script type="text/javascript">
+	$(document).ready(function() {
+
+	});
+</script>

@@ -1,0 +1,193 @@
+<div data-ng-controller="purchaseOrdersController" id="purchaseOrdersController" data-ng-init="fetchInitData()">
+
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-cube"></i> Purchase Orders
+		</h1>
+		<ol class="breadcrumb">
+			<li><a href="" data-ng-click="appRouting('dashboard')"><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li><a href="" data-ng-click="appRouting('items')">Purchase
+					Orders</a></li>
+			<li class="active">View</li>
+		</ol>
+	</section>
+	<div class="row" style="margin-left: 2px; margin-right: 2px; margin-bottom: 2px;">
+								<div class="col-sm-3">
+									<label for="selectedDateRange" class="control-label">Date Range</label> 
+									<input type="text" class="form-control daterange"
+										name="selectedDateRange" data-ng-model="selectedDateRange"
+										data-ng-change="dateChangeEvent()"
+										placeholder="Select Date..">
+								</div>
+								<div class="col-sm-3">
+									<label for="warehouse" class="control-label">Shipping Warehouse</label>
+									<ui-select ng-model="warehouse.shippingWarehouse"
+										data-ng-required="true"
+										name="warehouse"
+										data-ng-change="warehouseSelectEvent(warehouse.shippingWarehouse)"> <ui-select-match
+										reset-search-input="false"
+										placeholder="Select Warehouse..."> <span
+										ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+										repeat="warehouse as warehouse in (listOfWarehouses | filter: $select.search) track by warehouse.id">
+									<span ng-bind="warehouse.name"></span> </ui-select-choices> </ui-select>
+								</div>
+								<div class="col-sm-3">
+									<label for="statusU" class="control-label">Status</label>
+									<ui-select ng-model="selectedStatus1.status"
+										data-ng-required="true"
+										name="statusU"
+										data-ng-change="statusSelectEvent(selectedStatus1.status)"> <ui-select-match
+										placeholder="Select Status..."> <span
+										ng-bind="$select.selected.text"></span> </ui-select-match> <ui-select-choices
+										repeat="status as status in (fstatus | filter: $select.search) track by status.status">
+									<span ng-bind="status.text"></span> </ui-select-choices> </ui-select>
+								</div>
+								<div class="col-sm-3">
+									<label for="selectedDBtnateRange" class="control-label"></label>
+									<button type="button" class="btn"
+										name="selectedDBtnateRange"
+										data-ng-click="clearClickEvent()"
+										placeholder="Select Date..">Clear</button>
+								</div>
+							</div>
+	<section class="invoice">
+		<!-- title row -->
+		<div class="row">
+			<div class="col-xs-6" style="margin-top: -1em;">
+				<h3>View Purchase Orders</h3>
+			</div>
+			<div class="col-xs-6">
+				<!-- Single button -->
+				<div class="btn-group pull-right">
+					<button type="button" class="btn btn-primary dropdown-toggle"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+							<li><a href=""
+								data-ng-click="appRouting('purchaseOrders/create')">Create
+									Purchase Order</a></li>
+							<li><a href=""
+								data-ng-click="appRouting('purchaseOrders/view')">View
+									Purchase Orders</a></li>
+							<li><a href=""
+								data-ng-click="appRouting('purchaseOrders/templates')">Templates</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /.col -->
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box box-primary">
+					<!-- /.box-header -->
+					<div class="box-header" >
+						<h6 class="box-title">
+							List of All Orders
+						</h6>
+					</div>
+					<div class="box-body table-responsive">
+						<table id="ordersTbl" class="table table-bordered table-striped"
+							style="width: 100%;" datatable=""
+							data-dt-instance="ordersTblInstance"
+							dt-options="orderTblOptions"
+							dt-columns="orderColumns"></table>
+						<!-- <table id="ordersTbl" class="table table-bordered table-striped"
+							data-ng-model="listOfOrders" datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th class="col-md-1">Order#</th>
+									<th class="col-md-2">Date</th>
+									<th class="col-md-2">Status</th>
+									<th class="col-md-2">Vendor</th>
+									<th class="col-md-1">Total</th>
+									<th class="col-md-1">Paid</th>
+									<th class="col-md-1">Balance</th>
+									<th class="col-md-2">Details</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="order in listOfOrders track by $index">
+									<td class="col-md-1">{{ order.orderNo }}</td>
+									<td class="col-md-2">{{ order.date  | date: 'yyyy-MM-dd' }}</td>
+									<td class="col-md-2">{{ order.status[order.status.length-1] }}</td>
+									<td class="col-md-2">{{ order.vendor.name }}</td>
+									<td class="col-md-1"><i class="fa fa-inr"></i> {{ order.total }}</td>
+									<td class="col-md-1"><i class="fa fa-inr"></i> {{ order.amtPaid }}</td>
+									<td class="col-md-1"><i class="fa fa-inr"></i> {{ order.amtBalance }}</td>
+									<td class="col-md-2"><a href="" data-ng-click="appRouting(getPath(order.orderNo))"> View Details </a></td>
+								</tr>
+						</table> -->
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- /.col -->
+		</div>
+		<!-- /.row -->
+
+
+
+	</section>
+
+</div>
+<div class="clearfix"></div>
+<script type="text/javascript">
+
+var viewDetails = function (orderNo) {
+    angular.element('#purchaseOrdersController').scope().viewDetails(orderNo);
+}
+$(document)
+.ready(
+		function() {
+			var today = moment().format('YYYY-MM-DD');
+
+			$('.daterange')
+					.daterangepicker(
+							{
+								ranges : {
+									'Today' : [ moment(), moment() ],
+									'Yesterday' : [
+											moment().subtract(1,
+													'days'),
+											moment().subtract(1,
+													'days') ],
+									'Last 7 Days' : [
+											moment().subtract(6,
+													'days'),
+											moment() ],
+									'Last 30 Days' : [
+											moment().subtract(29,
+													'days'),
+											moment() ],
+									'This Month' : [
+											moment().startOf(
+													'month'),
+											moment().endOf('month') ],
+									'Last Month' : [
+											moment()
+													.subtract(1,
+															'month')
+													.startOf(
+															'month'),
+											moment().subtract(1,
+													'month').endOf(
+													'month') ]
+								},
+								startDate : moment().subtract(29,
+										'days'),
+								endDate : moment()
+							},
+							function(start, end) {
+								$('#reportrange span')
+										.html(
+												start
+														.format('MMMM D, YYYY')
+														+ ' - '
+														+ end
+																.format('MMMM D, YYYY'));
+							});
+		});
+</script>

@@ -1,0 +1,149 @@
+
+<div class="modal" id="createVendorModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" data-ng-show="!isUpdateForm">Create
+					Vendor</h4>
+				<h4 class="modal-title" data-ng-show="isUpdateForm">Update
+					Vendor</h4>
+			</div>
+			<form name="vendorForm"
+				data-ng-submit="updateVendor(vendorForm.$valid)" novalidate>
+				<div class="modal-body">
+
+					<div class="box-body">
+						<div class="row">
+							<div class="col-xs-6">
+								<div class="form-group"
+									data-ng-class="{ 'has-error' : vendorForm.name.$invalid && vendorForm.name.$touched }">
+									<label for="name"></label> <input type="text"
+										class="form-control" name="name" data-ng-model="vendor.name"
+										data-ng-required="true"
+										placeholder="Enter vendor name here..."
+										data-ng-disabled="isUpdateForm">
+									<p
+										data-ng-show="vendorForm.name.$invalid && vendorForm.name.$touched"
+										class="help-block">Vendor name is required.</p>
+								</div>
+							</div>
+							<div class="col-xs-6 form-group"
+								data-ng-class="{ 'has-error' : vendorForm.addressLine1.$invalid && vendorForm.addressLine1.$touched }">
+								<label for="addressLine1"></label> <input type="text"
+									class="form-control" name="addressLine1"
+									data-ng-model="vendor.addressLine1"
+									placeholder="Building name, block #, Lane..."
+									data-ng-required="true">
+								<p
+									data-ng-show="vendorForm.addressLine1.$invalid && vendorForm.addressLine1.$touched"
+									class="help-block">Required.</p>
+							</div>
+						</div>
+
+						<div class="row">
+
+							<div class="col-xs-6 form-group"
+								data-ng-class="{ 'has-error' : vendorForm.addressLine2.$invalid && vendorForm.addressLine2.$touched }">
+								<label for="addressLine2"></label> <input type="text"
+									class="form-control" name="addressLine2"
+									data-ng-model="vendor.addressLine2"
+									placeholder="Road, Street, Society..." data-ng-required="true">
+								<p
+									data-ng-show="vendorForm.addressLine2.$invalid && vendorForm.addressLine2.$touched"
+									class="help-block">Required.</p>
+							</div>
+							<div class="col-xs-6 form-group"
+								data-ng-class="{ 'has-error' : vendorForm.location.$invalid && vendorForm.location.$touched }">
+								<label for="location"></label> <input type="text"
+									class="form-control" name="location"
+									data-ng-model="vendor.location"
+									placeholder="Locality, near by landmark..."
+									data-ng-required="true">
+								<p
+									data-ng-show="vendorForm.location.$invalid && vendorForm.location.$touched"
+									class="help-block">Required.</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-6 form-group"
+								data-ng-class="{ 'has-error' : vendorForm.city.$invalid && vendorForm.city.$touched }">
+								<label for="city"></label> <input type="text"
+									class="form-control" name="city" data-ng-model="vendor.city"
+									placeholder="City" data-ng-required="true">
+								<p
+									data-ng-show="vendorForm.city.$invalid && vendorForm.city.$touched"
+									class="help-block">Required.</p>
+							</div>
+							<div class="col-xs-6 form-group"
+								data-ng-class="{ 'has-error' : vendorForm.state.$invalid && vendorForm.state.$touched }">
+								<label for="state"></label> <input type="text"
+									class="form-control" name="state"
+									data-ng-model="vendor.state" placeholder="State"
+									data-ng-required="true">
+								<p
+									data-ng-show="vendorForm.state.$invalid && vendorForm.state.$touched"
+									class="help-block">Required.</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-6 form-group"
+								data-ng-class="{ 'has-error' : vendorForm.country.$invalid && vendorForm.country.$touched }">
+								<label for="country"></label> <input type="text"
+									class="form-control" name="country"
+									data-ng-model="vendor.country" placeholder="Country"
+									data-ng-required="true">
+								<p
+									data-ng-show="vendorForm.country.$invalid && vendorForm.country.$touched"
+									class="help-block">Required.</p>
+							</div>
+							<div class="col-xs-6 form-group"
+								data-ng-class="{ 'has-error' : vendorForm.pincode.$invalid && vendorForm.pincode.$touched }">
+								<label for="pincode"></label> <input type="text"
+									class="form-control" name="pincode"
+									data-ng-model="vendor.pincode" placeholder="Pincode"
+									data-ng-required="true">
+								<p
+									data-ng-show="vendorForm.pincode.$invalid && vendorForm.pincode.$touched"
+									class="help-block">Required.</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-6">
+								<label for="contactNo"></label> <input type="text"
+									class="form-control" id="contactNo"
+									data-ng-model="vendor.contactNo"
+									placeholder="Mobile, Landline etc.">
+							</div>
+							<div class="col-xs-6">
+								<label for="contactPerson"></label> <input type="text"
+									class="form-control" id="contactPerson"
+									data-ng-model="vendor.contactPerson"
+									placeholder="Contact Person...">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-6">
+								<label for="isOrganised">Is vendor organised?</label> <input type="checkbox"
+								 ng-model="vendor.isOrganised" ng-true-value="true" ng-false-value="false">
+							</div>
+						</div>
+					</div>
+					<!-- /.box-body -->
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger pull-left"
+						data-dismiss="modal" id="close">Close</button>
+					<button type="submit" id="submit" class="btn btn-success"
+						data-ng-disabled="vendorForm.$invalid">Save changes</button>
+				</div>
+			</form>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>

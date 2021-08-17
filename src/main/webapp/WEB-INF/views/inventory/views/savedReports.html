@@ -1,0 +1,76 @@
+<div data-ng-controller="savedReportController"
+	data-ng-init="fetchInitData()" id="savedReportController">
+	<section class="content-header">
+		<h1>
+			<i class="fa fa-pie-chart"></i> Inventory Count Sheet
+		</h1>
+	</section>
+
+	<section class="invoice">
+		<div class="row">
+			<div class="col-xs-3">
+				<div class="col-md-12 col-xs-12">
+					<label for="selectedDateRange" class="control-label">Name
+					</label> <input type="text" class="form-control"
+						name="userReference" data-ng-model="userReference"
+						placeholder="Give the report a name...">
+				</div>
+				<div class="col-md-12 col-xs-12">
+					<button class="btn btn-block btn-success update"
+						style="margin-top: 1.5em;" data-ng-disabled="!userReference"
+						data-loading-text="Crunching Numbers..."
+						data-ng-click="generateReport()">Generate Report!</button>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-top: 1.5em">
+			<div class="col-xs-12">
+				<div class="box box-primary box-solid">
+					<div class="box-header">
+						<h3 class="box-title">List of Reports</h3>
+						<div class="box-tools pull-right">
+							<a href="" class="text-muted" data-ng-click="fetchAllReports()">
+								<i class="fa fa-refresh"></i>
+							</a>
+						</div>
+					</div>
+					<!-- Loading (remove the following to stop the loading)-->
+					<div class="overlay" data-ng-if="isLoadingReports">
+						<i class="fa fa-refresh fa-spin"></i>
+					</div>
+					<div class="box-body table-responsive">
+						<table id="reportsTbl" class="table table-bordered table-striped"
+							data-ng-init="fetchAllReports()" data-ng-model="listOfReports"
+							datatable="ng" dt-options="dtOptions">
+							<thead>
+								<tr>
+									<th>Created On</th>
+									<th>Report Name</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="report in listOfReports track by $index">
+									<td>{{ report.entryDttm | date : "dd/MMM/yyyy" }}</td>
+									<td><a href=""
+										data-ng-click="downloadReport(report.userReference, report.id)">
+											{{report.userReference}} </a></td>
+								</tr>
+						</table>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+			</div>
+			<!-- /.col -->
+		</div>
+		<!-- /.row -->
+	</section>
+	<!-- /.content -->
+</div>
+
+
+<div class="clearfix"></div>
+<script>
+	$(document).ready(function() {
+	});
+</script>

@@ -1,0 +1,70 @@
+<div>
+	<div class="modal" id="createCategoryModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Create Category</h4>
+				</div>
+				<form name="categoryForm"
+					data-ng-submit="createNewCategory(categoryForm.$valid)" novalidate>
+					<div class="modal-body">
+						<div class="box-body">
+							<div class="col-xs-12 form-group"
+								data-ng-class="{ 'has-error' : categoryForm.name.$invalid && categoryForm.name.$touched }">
+								<label for="name">Name</label> <input type="text"
+									class="form-control" name="name" data-ng-model="category.name"
+									placeholder="Enter category name here..."
+									data-ng-required="true">
+								<p
+									data-ng-show="categoryForm.name.$invalid && categoryForm.name.$touched"
+									class="help-block">Unique category name is required.</p>
+							</div>
+							<div class="col-xs-12 form-group"
+								data-ng-class="{ 'has-error' : categoryForm.description.$invalid && categoryForm.description.$touched }">
+								<label for="name">Description</label>
+								<textarea rows="3" name="description" class="form-control"
+									placeholder="Describe a bit about this category..."
+									data-ng-model="category.description" data-ng-required="true"></textarea>
+								<p
+									data-ng-show="categoryForm.description.$invalid && categoryForm.description.$touched"
+									class="help-block">Describe the category.</p>
+							</div>
+							<div class="col-xs-12 form-group"
+								data-ng-class="{ 'has-error' : categoryForm.parentCategory.$invalid && categoryForm.parentCategory.$touched }">
+								<label for="parentCategory" class="control-label">Parent
+									Category</label>
+								<ui-select ng-model="category.parentCategory"
+									name="parentCategory" ng-required="true"> <ui-select-match>
+								<span ng-bind="$select.selected.name"></span> </ui-select-match> <ui-select-choices
+									repeat="category.id as category in (itemCategories | filter: $select.search) track by category.id">
+								<span ng-bind="category.name"></span> </ui-select-choices> </ui-select>
+								<p
+									data-ng-show="categoryForm.parentCategory.$invalid && categoryForm.parentCategory.$touched"
+									class="help-block">Select parent category.</p>
+							</div>
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger pull-left updating"
+							data-dismiss="modal" id="close">Close</button>
+						<button type="submit" id="submit" class="btn btn-success updating"
+							data-ng-disabled="categoryForm.$invalid">Save changes</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+</div>
+
+<div class="clearfix"></div>
+<script type="text/javascript">
+
+</script>

@@ -1,0 +1,9 @@
+diff a/src/main/java/com/drivojoy/inventory/helpers/UserAuthentication.java b/src/main/java/com/drivojoy/inventory/helpers/UserAuthentication.java	(rejected hunks)
+@@ -25,6 +25,7 @@
+ 		this.userName = userName;
+ 		this.email = email;
+ 		this.isAdmin = hasRole("ROLE_ADMIN");
++		this.role = hasRole("ROLE_ADMIN")? "ROLE_ADMIN": (hasRole("ROLE_HUBMANAGER")?"ROLE_HUBMANAGER":"ROLE_INVENTORYMANAGER"); 
+ 	}
+ 
+ 	public String getUserName() {
